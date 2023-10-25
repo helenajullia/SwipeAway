@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'authentication/singing_option.dart';
+import 'authentication/signing_option.dart';
 import 'introScreen/intro_page.dart';
 
 void main() {

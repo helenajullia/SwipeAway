@@ -82,7 +82,7 @@ class ChooseSigningOption extends StatelessWidget {
                           borderRadius: BorderRadius.circular(screenSize.width * 0.08),
                         ),
                         child: Text(
-                          'Sign in',
+                          'Sign In',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.kronaOne(
                             color: Colors.black,
@@ -106,7 +106,7 @@ class ChooseSigningOption extends StatelessWidget {
                           borderRadius: BorderRadius.circular(screenSize.width * 0.08),
                         ),
                         child: Text(
-                          'Sign up',
+                          'Sign Up',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.kronaOne(
                             color: Colors.black,
