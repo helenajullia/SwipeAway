@@ -19,7 +19,7 @@ class _IntroScreenState extends State<IntroScreen> {
   }
 
   void _startAnimation() {
-    Future.delayed(Duration(milliseconds: 3000), () {
+    Future.delayed(const Duration(milliseconds: 3000), () {
       if (mounted) {
         setState(() {
           _fontSize = _grow ? 40.0 : 37.0; // Adjust the difference in font sizes
@@ -38,13 +38,13 @@ class _IntroScreenState extends State<IntroScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Align(
-        alignment: Alignment(0, -1),
+        alignment: const Alignment(0, -1),
         child: Column(
           children: [
             SizedBox(height: targetHeight),
             TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: 20.0, end: _fontSize),
-              duration: Duration(milliseconds: 2000), // Increase duration for slower animation
+              duration: const Duration(milliseconds: 2000), // Increase duration for slower animation
               builder: (context, fontSize, child) {
                 return Text(
                   'SwipeAway',
@@ -57,11 +57,11 @@ class _IntroScreenState extends State<IntroScreen> {
                 );
               },
             ),
-            SizedBox(height: 30.0),
+            const SizedBox(height: 30.0),
             Text(
               '-your guide to Romanian accommodations-',
               style: GoogleFonts.abhayaLibre(
-                textStyle: TextStyle(
+                textStyle: const TextStyle(
                     color: Colors.white,
                     fontSize: 18.0
                 ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
+import 'authentication/choose_user_or_admin.dart';
 import 'introScreen/intro_page.dart';
 
 void main() {
@@ -9,7 +9,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,35 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: IntroScreen(),
+      home: IntroScreenWithDelay(), // Use IntroScreenWithDelay to control navigation
+    );
+  }
+}
+
+class IntroScreenWithDelay extends StatefulWidget {
+  @override
+  _IntroScreenWithDelayState createState() => _IntroScreenWithDelayState();
+}
+
+class _IntroScreenWithDelayState extends State<IntroScreenWithDelay> {
+  bool showIntro = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          showIntro = false;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: showIntro ? IntroScreen() : ChooseUserOrAdmin(),
     );
   }
 }
