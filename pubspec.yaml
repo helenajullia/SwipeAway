@@ -14,9 +14,8 @@ dependencies:
   get:
 
 flutter:
-    assets:
-      - assets/icons
-
+  assets:
+    - assets/icons/
 
 dev_dependencies:
   flutter_test:
