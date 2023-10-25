@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ChooseUserOrAdmin extends StatelessWidget {
+class ChooseSigningOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -31,7 +31,6 @@ class ChooseUserOrAdmin extends StatelessWidget {
                           'SwipeAway',
                           style: GoogleFonts.kronaOne(
                             color: Colors.white,
-
                             fontSize: screenSize.width * 0.06,
                             fontWeight: FontWeight.w400,
                           ),
@@ -83,7 +82,7 @@ class ChooseUserOrAdmin extends StatelessWidget {
                           borderRadius: BorderRadius.circular(screenSize.width * 0.08),
                         ),
                         child: Text(
-                          'User',
+                          'Sign in',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.kronaOne(
                             color: Colors.black,
@@ -107,7 +106,7 @@ class ChooseUserOrAdmin extends StatelessWidget {
                           borderRadius: BorderRadius.circular(screenSize.width * 0.08),
                         ),
                         child: Text(
-                          'Admin',
+                          'Sign up',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.kronaOne(
                             color: Colors.black,

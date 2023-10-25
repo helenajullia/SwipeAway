@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'authentication/choose_user_or_admin.dart';
+import 'authentication/singing_option.dart';
 import 'introScreen/intro_page.dart';
 
 void main() {
@@ -49,7 +49,7 @@ class _IntroScreenWithDelayState extends State<IntroScreenWithDelay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: showIntro ? IntroScreen() : ChooseUserOrAdmin(),
+      body: showIntro ? IntroScreen() : ChooseSigningOption(),
     );
   }
 }
