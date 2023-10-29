@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 
 class SignUp extends StatefulWidget {
   @override
@@ -15,6 +18,34 @@ class _SignUpState extends State<SignUp> {
     });
   }
 
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    phoneController.dispose();
+    super.dispose();
+  }
+
+  String hashedPassword = "";
+
+  // Function to hash the password
+  void hashPassword(String password) {
+    final bytes = utf8.encode(password); // Encode the password as bytes
+    final digest = sha256.convert(bytes); // Create a SHA-256 hash
+    setState(() {
+      hashedPassword = digest.toString();
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,9 +53,9 @@ class _SignUpState extends State<SignUp> {
       appBar: AppBar(
         backgroundColor: Color(0xFF454545),
         leading: IconButton(
-          icon: Image.asset('assets/icons/left_arrow2.png'), // Replace the icon with a left arrow
+          icon: Image.asset('assets/icons/left_arrow2.png'),
           onPressed: () {
-            Navigator.of(context).pop(); // Add navigation action here
+            Navigator.of(context).pop();
           },
         ),
         centerTitle: true,
@@ -62,44 +93,44 @@ class _SignUpState extends State<SignUp> {
                     color: Colors.blueGrey.shade100,
                   ),
                 ),
-                SizedBox(height: 10), // Move the "Sign Up" text down slightly
+                SizedBox(height: 10),
                 Center(
                   child: Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width * 0.08),
+                      borderRadius: BorderRadius.circular(
+                          MediaQuery.of(context).size.width * 0.08),
                     ),
                     child: Text(
                       'Sign Up',
-                        style: GoogleFonts.kronaOne(
-                          color: Colors.black,
-                          fontSize: MediaQuery.of(context).size.width * 0.06,
-                          fontWeight: FontWeight.w400,
-                        ),
+                      style: GoogleFonts.kronaOne(
+                        color: Colors.black,
+                        fontSize: MediaQuery.of(context).size.width * 0.06,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ),
-                // First Row of Buttons
+                // First Row of TextFields
                 SizedBox(height: 35),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Handle button 1 click
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Color(0x9ED9D9D9), // Set the button color
-                          padding: EdgeInsets.symmetric(horizontal: 45, vertical: 8), // Adjust button size
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30), // Adjust the button's border radius
+                      Expanded(
+                        child: TextField(
+                          controller: firstNameController,
+                          decoration: InputDecoration(
+                            hintText: 'First Name',
+                            filled: true,
+                            fillColor: Color(0x9ED9D9D9),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          'First Name: ',
-                          textAlign: TextAlign.left,
                           style: GoogleFonts.kronaOne(
                             color: Colors.black,
                             fontSize: MediaQuery.of(context).size.width * 0.03,
@@ -107,21 +138,20 @@ class _SignUpState extends State<SignUp> {
                           ),
                         ),
                       ),
-                      SizedBox(width: 10), // Add spacing between buttons
-                      ElevatedButton(
-                        onPressed: () {
-                          // Handle button 1 click
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Color(0x9ED9D9D9), // Set the button color
-                          padding: EdgeInsets.symmetric(horizontal: 45, vertical: 8), // Adjust button size
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30), // Adjust the button's border radius
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: lastNameController,
+                          decoration: InputDecoration(
+                            hintText: 'Last Name',
+                            filled: true,
+                            fillColor: Color(0x9ED9D9D9),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          'Last Name: ',
-                          textAlign: TextAlign.left,
                           style: GoogleFonts.kronaOne(
                             color: Colors.black,
                             fontSize: MediaQuery.of(context).size.width * 0.03,
@@ -132,78 +162,69 @@ class _SignUpState extends State<SignUp> {
                     ],
                   ),
                 ),
-                // Second Row of Buttons
+                // Second Row of TextFields
                 SizedBox(height: 20),
                 Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Handle button 1 click
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0x9ED9D9D9), // Set the button color
-                      padding: EdgeInsets.symmetric(horizontal: 160, vertical: 2), // Adjust button size
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30), // Adjust the button's border radius
+                  child: TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      hintText: 'Email',
+                      filled: true,
+                      fillColor: Color(0x9ED9D9D9),
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text(
-                      'Email: ',
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.kronaOne(
-                        color: Colors.black,
-                        fontSize: MediaQuery.of(context).size.width * 0.03,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    style: GoogleFonts.kronaOne(
+                      color: Colors.black,
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
-                // Third Row of Buttons
+                // Third Row of TextFields
                 SizedBox(height: 20),
                 Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Handle button 1 click
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0x9ED9D9D9), // Set the button color
-                      padding: EdgeInsets.symmetric(horizontal: 145, vertical: 1), // Adjust button size
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30), // Adjust the button's border radius
+                  child: TextField(
+                    controller: passwordController,
+                    decoration: InputDecoration(
+                      hintText: 'Password',
+                      filled: true,
+                      fillColor: Color(0x9ED9D9D9),
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text(
-                      'Password: ',
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.kronaOne(
-                        color: Colors.black,
-                        fontSize: MediaQuery.of(context).size.width * 0.03,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    style: GoogleFonts.kronaOne(
+                      color: Colors.black,
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
-                // Fourth Row of Buttons
+                // Fourth Row of TextFields
                 SizedBox(height: 20),
                 Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Handle button 1 click
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0x9ED9D9D9), // Set the button color
-                      padding: EdgeInsets.symmetric(horizontal: 145, vertical: 1), // Adjust button size
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30), // Adjust the button's border radius
+                  child: TextField(
+                    controller: phoneController,
+                    decoration: InputDecoration(
+                      hintText: 'Phone No',
+                      filled: true,
+                      fillColor: Color(0x9ED9D9D9),
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text(
-                      'Phone No: ',
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.kronaOne(
-                        color: Colors.black,
-                        fontSize: MediaQuery.of(context).size.width * 0.03,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    style: GoogleFonts.kronaOne(
+                      color: Colors.black,
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
@@ -214,10 +235,11 @@ class _SignUpState extends State<SignUp> {
                       // Handle button 1 click
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: Color(0xFFD56A1B), // Set the button color
-                      padding: EdgeInsets.symmetric(horizontal: 80, vertical: 8), // Adjust button size
+                      primary: Color(0xFFD56A1B),
+                      padding:
+                      EdgeInsets.symmetric(horizontal: 80, vertical: 8),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30), // Adjust the button's border radius
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     child: Text(
@@ -235,7 +257,6 @@ class _SignUpState extends State<SignUp> {
           ),
         ],
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
