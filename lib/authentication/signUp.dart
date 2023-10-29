@@ -25,6 +25,7 @@ class _SignUpState extends State<SignUp> {
             Navigator.of(context).pop(); // Add navigation action here
           },
         ),
+        centerTitle: true,
         title: Text(
           'SwipeAway',
           style: GoogleFonts.kronaOne(
