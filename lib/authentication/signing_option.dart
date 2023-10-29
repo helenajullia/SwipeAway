@@ -23,6 +23,7 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
       backgroundColor: Color(0xFF171717),
       appBar: AppBar(
         backgroundColor: Color(0xFF454545),
+        centerTitle: true,
         title: Text(
           'SwipeAway',
           style: GoogleFonts.kronaOne(
