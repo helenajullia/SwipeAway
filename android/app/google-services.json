@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1042719103211",
+    "project_id": "swipeaway-7f987",
+    "storage_bucket": "swipeaway-7f987.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1042719103211:android:f8cca717e93646de7186ae",
+        "android_client_info": {
+          "package_name": "com.helena.swipe_away2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUUv-5fUo_EWWmSJ_FT5-xbLwynyYNv5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
