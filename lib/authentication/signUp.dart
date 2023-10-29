@@ -147,7 +147,7 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     child: Text(
-                      'Email:: ',
+                      'Email: ',
                       textAlign: TextAlign.left,
                       style: GoogleFonts.kronaOne(
                         color: Colors.black,
@@ -197,7 +197,7 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     child: Text(
-                      'Phone No.: ',
+                      'Phone No: ',
                       textAlign: TextAlign.left,
                       style: GoogleFonts.kronaOne(
                         color: Colors.black,
