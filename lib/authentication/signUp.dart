@@ -79,39 +79,39 @@ class _SignUpState extends State<SignUp> {
           ),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Center(
-                  child: Image.asset(
-                    'assets/icons/user_icon.png',
-                    scale: 0.5,
-                    color: Colors.blueGrey.shade100,
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            // Your existing content here
+
+            Center(
+              child: Image.asset(
+                'assets/icons/user_icon.png',
+                scale: 0.5,
+                color: Colors.blueGrey.shade100,
+              ),
+            ),
+            SizedBox(height: 10),
+            Center(
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(
+                    MediaQuery.of(context).size.width * 0.08,
                   ),
                 ),
-                SizedBox(height: 10),
-                Center(
-                  child: Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(
-                          MediaQuery.of(context).size.width * 0.08),
-                    ),
-                    child: Text(
-                      'Sign Up',
-                      style: GoogleFonts.kronaOne(
-                        color: Colors.black,
-                        fontSize: MediaQuery.of(context).size.width * 0.06,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
+                child: Text(
+                  'Sign Up',
+                  style: GoogleFonts.kronaOne(
+                    color: Colors.black,
+                    fontSize: MediaQuery.of(context).size.width * 0.06,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
+              ),
+            ),
                 // First Row of TextFields
                 SizedBox(height: 35),
                 Center(
@@ -255,8 +255,6 @@ class _SignUpState extends State<SignUp> {
               ],
             ),
           ),
-        ],
-      ),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
