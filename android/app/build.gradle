@@ -4,6 +4,8 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -41,6 +43,9 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        minSdkVersion 19
+        targetSdkVersion 33
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -52,8 +57,13 @@ android {
     }
 }
 
+dependencies {
+    implementation "androidx.multidex:multidex:2.0.1"
+}
+
 flutter {
     source '../..'
 }
 
-apply plugin: 'com.google.gms:google-services'
+
+

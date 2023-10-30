@@ -204,6 +204,7 @@ class _SignUpState extends State<SignUp> {
                       fontSize: MediaQuery.of(context).size.width * 0.03,
                       fontWeight: FontWeight.w400,
                     ),
+                    obscureText: true,
                   ),
                 ),
                 // Fourth Row of TextFields
