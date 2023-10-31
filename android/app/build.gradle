@@ -4,8 +4,6 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-
-
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -59,11 +57,14 @@ android {
 
 dependencies {
     implementation "androidx.multidex:multidex:2.0.1"
+    implementation 'com.google.firebase:firebase-core:17.0.0'
+    implementation 'com.google.gms:google-services:3.0.0'
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation platform('com.google.firebase:firebase-bom:30.2.0')
+    // Add other Firebase dependencies here if needed
 }
 
 flutter {
     source '../..'
 }
-
-
 
