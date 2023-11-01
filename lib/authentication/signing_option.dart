@@ -19,9 +19,10 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFFF),
+      backgroundColor: Colors.white,
       body: Center(
         child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -29,53 +30,71 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
                 'Login',
                 style: GoogleFonts.abyssinicaSil(
                   color: Colors.black,
-                  fontSize: MediaQuery.of(context).size.width * 0.05,
+                  fontSize: MediaQuery.of(context).size.width * 0.1,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: 30.0),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15.0),
+              TextField(
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15.0),
+              ElevatedButton(
+                onPressed: () {
+                  // Handle login button click
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.black,
+                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                child: Text(
+                  'LOGIN',
+                  style: GoogleFonts.abyssinicaSil(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Handle forgot password click
+                },
+                child: Text(
+                  'Forgot your password?',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+              SizedBox(height: 15.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Handle sign in button click
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(50, 50),
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width * 0.8),
-                      ),
-                    ),
-                    child: Text(
-                      'Sign In',
-                      style: GoogleFonts.abyssinicaSil(
-                        color: Colors.black,
-                        fontSize: MediaQuery.of(context).size.width * 0.05,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-                  ElevatedButton(
+                  Text('Don\'t have an account? '),
+                  TextButton(
                     onPressed: () {
-                      // Handle sign up button click
                       Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignUp()));
                     },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(50, 50),
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width * 0.08),
-                      ),
-                    ),
                     child: Text(
                       'Sign Up',
-                      style: GoogleFonts.abyssinicaSil(
-                        color: Colors.black,
-                        fontSize: MediaQuery.of(context).size.width * 0.05,
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                 ],
