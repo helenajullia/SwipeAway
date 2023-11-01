@@ -25,6 +25,7 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
           padding: EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Login',
@@ -53,34 +54,38 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
                   ),
                 ),
               ),
-              SizedBox(height: 15.0),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle login button click
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.black,
-                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+              SizedBox(height: 30.0),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Handle login button click
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                   ),
-                ),
-                child: Text(
-                  'LOGIN',
-                  style: GoogleFonts.abyssinicaSil(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
+                  child: Text(
+                    'LOGIN',
+                    style: GoogleFonts.abyssinicaSil(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  // Handle forgot password click
-                },
-                child: Text(
-                  'Forgot your password?',
-                  style: TextStyle(color: Colors.black),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    // Handle forgot password click
+                  },
+                  child: Text(
+                    'Forgot your password?',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ),
               SizedBox(height: 15.0),
