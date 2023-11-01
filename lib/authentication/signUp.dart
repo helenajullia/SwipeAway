@@ -5,7 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:swipe_away/authentication/userModel.dart';
+
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -94,7 +94,7 @@ class _SignUpState extends State<SignUp> {
         centerTitle: true,
         title: Text(
           'SwipeAway',
-          style: GoogleFonts.kronaOne(
+          style: GoogleFonts.abyssinicaSil(
             color: Colors.white,
             fontSize: MediaQuery.of(context).size.width * 0.06,
             fontWeight: FontWeight.w400,
@@ -135,7 +135,7 @@ class _SignUpState extends State<SignUp> {
                 ),
                 child: Text(
                   'Sign Up',
-                  style: GoogleFonts.kronaOne(
+                  style: GoogleFonts.abyssinicaSil(
                     color: Colors.black,
                     fontSize: MediaQuery.of(context).size.width * 0.06,
                     fontWeight: FontWeight.w400,
@@ -161,7 +161,7 @@ class _SignUpState extends State<SignUp> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      style: GoogleFonts.kronaOne(
+                      style: GoogleFonts.abyssinicaSil(
                         color: Colors.black,
                         fontSize: MediaQuery.of(context).size.width * 0.03,
                         fontWeight: FontWeight.w400,
@@ -182,7 +182,7 @@ class _SignUpState extends State<SignUp> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      style: GoogleFonts.kronaOne(
+                      style: GoogleFonts.abyssinicaSil(
                         color: Colors.black,
                         fontSize: MediaQuery.of(context).size.width * 0.03,
                         fontWeight: FontWeight.w400,
@@ -206,7 +206,7 @@ class _SignUpState extends State<SignUp> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                style: GoogleFonts.kronaOne(
+                style: GoogleFonts.abyssinicaSil(
                   color: Colors.black,
                   fontSize: MediaQuery.of(context).size.width * 0.03,
                   fontWeight: FontWeight.w400,
@@ -227,7 +227,7 @@ class _SignUpState extends State<SignUp> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                style: GoogleFonts.kronaOne(
+                style: GoogleFonts.abyssinicaSil(
                   color: Colors.black,
                   fontSize: MediaQuery.of(context).size.width * 0.03,
                   fontWeight: FontWeight.w400,
@@ -249,7 +249,7 @@ class _SignUpState extends State<SignUp> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                style: GoogleFonts.kronaOne(
+                style: GoogleFonts.abyssinicaSil(
                   color: Colors.black,
                   fontSize: MediaQuery.of(context).size.width * 0.03,
                   fontWeight: FontWeight.w400,
@@ -271,7 +271,7 @@ class _SignUpState extends State<SignUp> {
                 ),
                 child: Text(
                   'Submit',
-                  style: GoogleFonts.kronaOne(
+                  style: GoogleFonts.abyssinicaSil(
                     color: Colors.black,
                     fontSize: MediaQuery.of(context).size.width * 0.06,
                     fontWeight: FontWeight.w400,

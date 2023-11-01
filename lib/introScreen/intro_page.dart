@@ -48,7 +48,7 @@ class _IntroScreenState extends State<IntroScreen> {
               builder: (context, fontSize, child) {
                 return Text(
                   'SwipeAway',
-                  style: GoogleFonts.kronaOne(
+                  style: GoogleFonts.abyssinicaSil(
                     textStyle: TextStyle(
                       color: Colors.white,
                       fontSize: fontSize,
