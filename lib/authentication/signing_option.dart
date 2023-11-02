@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:swipe_away/authentication/signUp.dart';
+//import 'package:swipe_away/home_page.dart'; // Make sure you have this HomePage widget
 
 class ChooseSigningOption extends StatefulWidget {
   @override
@@ -8,18 +11,63 @@ class ChooseSigningOption extends StatefulWidget {
 }
 
 class _ChooseSigningOptionState extends State<ChooseSigningOption> {
-  int _selectedIndex = 0;
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> signIn() async {
+    try {
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        // Check if user exists in Firestore database
+        final DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.email).get();
+
+        if (userDoc.exists) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Logged in successfully")));
+          //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
+        } else {
+          // User not found in Firestore database
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You don't have an account")));
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Incorrect email/password")));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("An error occurred. Please try again")));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.close, color: Colors.black),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
       body: Center(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 24.0),
@@ -37,6 +85,7 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
               ),
               SizedBox(height: 30.0),
               TextField(
+                controller: emailController,
                 decoration: InputDecoration(
                   hintText: 'Email',
                   border: OutlineInputBorder(
@@ -46,6 +95,7 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
               ),
               SizedBox(height: 15.0),
               TextField(
+                controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: 'Password',
@@ -57,9 +107,7 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
               SizedBox(height: 30.0),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Handle login button click
-                  },
+                  onPressed: signIn,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),

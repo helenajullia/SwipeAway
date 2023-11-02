@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:swipe_away/authentication/choosing_authOption.dart';
 import 'authentication/signing_option.dart';
 import 'introScreen/intro_page.dart';
 import 'dart:async';
@@ -63,7 +64,7 @@ class _IntroScreenWithDelayState extends State<IntroScreenWithDelay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: showIntro ? IntroScreen() : ChooseSigningOption(),
+      body: showIntro ? IntroScreen() : ChoosingAuthOption(),
     );
   }
 }
