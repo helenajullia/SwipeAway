@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:swipe_away/authentication/signUp.dart';
-import 'package:swipe_away/authentication/signing_option.dart';
+import 'package:swipe_away/authentication/login.dart';
 
 class ChoosingAuthOption extends StatelessWidget {
   @override

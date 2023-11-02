@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:swipe_away/authentication/choosing_authOption.dart';
-import 'authentication/signing_option.dart';
+import 'authentication/login.dart';
 import 'introScreen/intro_page.dart';
 import 'dart:async';
 import 'firebase_options.dart';

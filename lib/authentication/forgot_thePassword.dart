@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 
 class ForgotPassword extends StatelessWidget {
   // Create a TextEditingController for the password field
@@ -41,10 +39,16 @@ class ForgotPassword extends StatelessWidget {
             SizedBox(height: 30),
             TextField(
               controller: passwordController, // Use the TextEditingController
+              cursorColor: Colors.black,
               decoration: InputDecoration(
                 labelText: 'Reset password',
+                labelStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                 ),
               ),
               keyboardType: TextInputType.emailAddress,
@@ -61,9 +65,14 @@ class ForgotPassword extends StatelessWidget {
                     await FirebaseFirestore.instance.collection('users').doc(user.email).update({
                       'password': passwordController.text,
                     });
+
+                    // Update password in Firebase Authentication
+                    await user.updatePassword(passwordController.text);
                   }
                   // Show a success message
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Password updated successfully!')));
+
+                  Navigator.pop(context);
                 } catch (e) {
                   // Handle error
                   print('Error: $e');
@@ -75,6 +84,7 @@ class ForgotPassword extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
+
                 ),
               ),
               child: Text(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:swipe_away/authentication/signing_option.dart';
+import 'package:swipe_away/authentication/login.dart';
 
 class SignUp extends StatefulWidget {
   @override
