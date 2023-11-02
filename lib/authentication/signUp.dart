@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swipe_away/authentication/login.dart';
 
+import '../home/home_page.dart';
+
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -56,6 +58,10 @@ class _SignUpState extends State<SignUp> {
 
         // Show success snackbar
         _showSnackBar(context, 'User successfully registered.');
+
+        // Navigate to HomePage
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
+
       } else {
         // Show error snackbar
         _showSnackBar(context, 'User registration failed.');
