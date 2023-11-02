@@ -101,10 +101,16 @@ class _SignUpState extends State<SignUp> {
                 Expanded(
                   child: TextField(
                     controller: firstNameController,
+                    cursorColor: Colors.black,
                     decoration: InputDecoration(
                       labelText: 'First Name',
+                      labelStyle: TextStyle(color: Colors.black),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                       ),
                     ),
                   ),
@@ -113,10 +119,16 @@ class _SignUpState extends State<SignUp> {
                 Expanded(
                   child: TextField(
                     controller: lastNameController,
+                    cursorColor: Colors.black,
                     decoration: InputDecoration(
                       labelText: 'Last Name',
+                      labelStyle: TextStyle(color: Colors.black),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                       ),
                     ),
                   ),
@@ -126,20 +138,32 @@ class _SignUpState extends State<SignUp> {
             SizedBox(height: 16),
             TextField(
               controller: emailController,
+              cursorColor: Colors.black,
               decoration: InputDecoration(
                 labelText: 'Email',
+                labelStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                 ),
               ),
             ),
             SizedBox(height: 16),
             TextField(
               controller: passwordController,
+              cursorColor: Colors.black,
               decoration: InputDecoration(
                 labelText: 'Password',
+                labelStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                 ),
               ),
               obscureText: true,
@@ -147,10 +171,16 @@ class _SignUpState extends State<SignUp> {
             SizedBox(height: 16),
             TextField(
               controller: phoneController,
+              cursorColor: Colors.black,
               decoration: InputDecoration(
                 labelText: 'Phone',
+                labelStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                 ),
               ),
               keyboardType: TextInputType.phone,

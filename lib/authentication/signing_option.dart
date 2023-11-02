@@ -118,21 +118,32 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
               SizedBox(height: 30.0),
               TextField(
                 controller: emailController,
+                cursorColor: Colors.black,
                 decoration: InputDecoration(
                   hintText: 'Email',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.black, width: 1.5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                   ),
                 ),
               ),
               SizedBox(height: 15.0),
               TextField(
                 controller: passwordController,
+                cursorColor: Colors.black,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: 'Password',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                   ),
                 ),
               ),
