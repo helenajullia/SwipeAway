@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:swipe_away/authentication/forgot_thePassword.dart';
 import 'package:swipe_away/authentication/signUp.dart';
 //import 'package:swipe_away/home_page.dart'; // Make sure you have this HomePage widget
 
@@ -23,6 +24,9 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
     passwordController.dispose();
     super.dispose();
   }
+  void showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   Future<void> signIn() async {
     try {
@@ -30,6 +34,7 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
         email: emailController.text,
         password: passwordController.text,
       );
+
 
       final User? user = userCredential.user;
 
@@ -47,10 +52,12 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Incorrect email/password")));
+        showErrorSnackBar("Incorrect email/password");
+      } else {
+        showErrorSnackBar(e.message ?? "An error occurred");
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("An error occurred. Please try again")));
+      showErrorSnackBar("An error occurred. Please try again");
     }
   }
 
@@ -128,7 +135,7 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
               Center(
                 child: TextButton(
                   onPressed: () {
-                    // Handle forgot password click
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgotPassword()));
                   },
                   child: Text(
                     'Forgot your password?',

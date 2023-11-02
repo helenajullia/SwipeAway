@@ -44,6 +44,7 @@ class _SignUpState extends State<SignUp> {
           'email': user.email,
           'password': passwordController.text,
           'phone': phoneController.text,
+
         });
       } else {
         print('User registration failed');
