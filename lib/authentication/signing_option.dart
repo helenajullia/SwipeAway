@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:swipe_away/authentication/forgot_thePassword.dart';
 import 'package:swipe_away/authentication/signUp.dart';
-//import 'package:swipe_away/home_page.dart'; // Make sure you have this HomePage widget
+import 'package:swipe_away/home/home_page.dart';
 
 class ChooseSigningOption extends StatefulWidget {
   @override
@@ -24,9 +24,6 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
     passwordController.dispose();
     super.dispose();
   }
-  void showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
 
   Future<void> signIn() async {
     try {
@@ -35,29 +32,57 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
         password: passwordController.text,
       );
 
-
       final User? user = userCredential.user;
 
       if (user != null) {
-        // Check if user exists in Firestore database
         final DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.email).get();
 
         if (userDoc.exists) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Logged in successfully")));
-          //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Logged in successfully."),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
         } else {
-          // User not found in Firestore database
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You don't have an account")));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("You don't have an account."),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-        showErrorSnackBar("Incorrect email/password");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("The email or password are incorrect."),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: "Resetting password.",
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgotPassword()));
+              },
+            ),
+          ),
+        );
       } else {
-        showErrorSnackBar(e.message ?? "An error occurred");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? "An error occurred"),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
-      showErrorSnackBar("An error occurred. Please try again");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("An error occurred. Please try again later."),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

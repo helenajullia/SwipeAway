@@ -62,7 +62,6 @@ class ForgotPassword extends StatelessWidget {
                       'password': passwordController.text,
                     });
                   }
-
                   // Show a success message
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Password updated successfully!')));
                 } catch (e) {
@@ -79,7 +78,7 @@ class ForgotPassword extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'SEND',
+                'UPDATE',
                 style: GoogleFonts.abyssinicaSil(
                   color: Colors.white,
                   fontSize: MediaQuery.of(context).size.width * 0.05,

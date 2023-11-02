@@ -28,6 +28,14 @@ class _SignUpState extends State<SignUp> {
     super.dispose();
   }
 
+  void _showSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: Colors.green,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   Future<void> signUpAndSubmitData() async {
     try {
       final authResult = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -44,16 +52,19 @@ class _SignUpState extends State<SignUp> {
           'email': user.email,
           'password': passwordController.text,
           'phone': phoneController.text,
-
         });
+
+        // Show success snackbar
+        _showSnackBar(context, 'User successfully registered.');
       } else {
-        print('User registration failed');
+        // Show error snackbar
+        _showSnackBar(context, 'User registration failed.');
       }
     } catch (e) {
-      print('Error: $e');
+      // Show error snackbar
+      _showSnackBar(context, 'Error: $e');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
