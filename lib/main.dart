@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'SwipeAway',
       theme: ThemeData(
+        fontFamily: 'Roboto',  // This sets the global font to Roboto
         colorScheme: ColorScheme.fromSwatch(
           primarySwatch: Colors.deepPurple,
         ),
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 
 class IntroScreenWithDelay extends StatefulWidget {
   @override
