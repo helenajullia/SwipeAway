@@ -70,6 +70,11 @@ class _HomePageState extends State<HomePage> {
             image: DecorationImage(
               image: AssetImage('assets/images/SearchPage.jpeg'),
               fit: BoxFit.cover,
+              // Apply color filter here
+              colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.85), // 50% Opacity
+                BlendMode.dstATop, // This blend mode allows the image to show through the color
+              ),
             ),
           ),
           child: Padding(
@@ -128,7 +133,7 @@ class _HomePageState extends State<HomePage> {
           child: DropdownButton<String>(
             isExpanded: true,
             value: selectedCounty,
-            hint: Text('Enter County'),
+            hint:  Text('Enter County', style: TextStyle(color: Colors.black.withOpacity(0.7)),),
             onChanged: (value) => setState(() => selectedCounty = value),
             items: counties.map((county) => DropdownMenuItem(value: county, child: Text(county))).toList(),
           ),
@@ -163,7 +168,7 @@ class _HomePageState extends State<HomePage> {
           data: ThemeData.light().copyWith(
             primaryColor: Colors.black,
             secondaryHeaderColor: Colors.black,
-            colorScheme: ColorScheme.light(primary: Colors.black),
+            colorScheme: ColorScheme.dark(primary: Colors.black),
             buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
           ),
           child: child!,
