@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -9,7 +10,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   DateTime? checkInDate;
   DateTime? checkOutDate;
-  int roomCount = 1;
+  int singleRoomCount = 0;
+  int doubleRoomCount = 0;
   String? selectedCounty;
   int _currentIndex = 0;
 
@@ -78,11 +80,10 @@ class _HomePageState extends State<HomePage> {
                 Center(
                   child: Text(
                     "SwipeAway",
-                    style: TextStyle(
-                        fontFamily: 'abyssinicaSil',
-                        fontSize: 34,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black
+                    style: GoogleFonts.robotoSerif(
+                      fontSize: 34,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black.withOpacity(0.85),
                     ),
                   ),
                 ),
@@ -193,34 +194,71 @@ class _HomePageState extends State<HomePage> {
     if (selectedDate != null && selectedDate != checkOutDate) setState(() => checkOutDate = selectedDate);
   });
 
-  Widget buildRoomsRow() {
+  Widget buildRoomSelectionRow(String roomType, int count, Function(bool) onSelectionChanged) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Rooms",
-            style: TextStyle(
-              fontFamily: 'San Francisco',
-              fontSize: 16,
-              color: Colors.black,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "$roomType Rooms",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black.withOpacity(0.7),
+              ),
             ),
-          ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton<int>(
-              value: roomCount,
-              onChanged: (value) => setState(() => roomCount = value!),
-              isExpanded: false,
-              items: List.generate(5, (index) => index + 1).map((number) => DropdownMenuItem(value: number, child: Text(number.toString()))).toList(),
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.remove, color: Colors.black),
+                  onPressed: () => onSelectionChanged(false),
+                ),
+                Text(
+                  count.toString(),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black.withOpacity(0.7),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.add, color: Colors.black),
+                  onPressed: () => onSelectionChanged(true),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+  Widget buildRoomsRow() {
+    return Column(
+      children: [
+        buildRoomSelectionRow("Single", singleRoomCount, (bool increment) {
+          setState(() {
+            if (increment) {
+              singleRoomCount++;
+            } else {
+              if (singleRoomCount > 0) singleRoomCount--; // Allow to decrement down to 0
+            }
+          });
+        }),
+        SizedBox(height: 12),
+        buildRoomSelectionRow("Double", doubleRoomCount, (bool increment) {
+          setState(() {
+            if (increment) {
+              doubleRoomCount++;
+            } else {
+              if (doubleRoomCount > 0) doubleRoomCount--; // Allow to decrement down to 0
+            }
+          });
+        }),
+      ],
     );
   }
 
