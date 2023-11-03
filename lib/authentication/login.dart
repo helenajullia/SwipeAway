@@ -6,6 +6,8 @@ import 'package:swipe_away/authentication/forgot_thePassword.dart';
 import 'package:swipe_away/authentication/signUp.dart';
 import 'package:swipe_away/home/home_page.dart';
 
+import '../adminService/adminInterface.dart';
+
 class ChooseSigningOption extends StatefulWidget {
   @override
   _ChooseSigningOptionState createState() => _ChooseSigningOptionState();
@@ -35,23 +37,49 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
       final User? user = userCredential.user;
 
       if (user != null) {
-        final DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.email).get();
+        // Check if the user is the admin
+        //if (user.uid == "wHpWhxrOh5iWVFvcEhsn" && user.email=="adminSwipeAway@email.com") {
+          // Check the admin collection
+          final DocumentSnapshot adminDoc = await FirebaseFirestore.instance.collection('admin').doc(user.uid).get();
 
-        if (userDoc.exists) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Logged in successfully."),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
+          if (adminDoc.exists && adminDoc.get('password') == 'parolaAdmin' &&  user.email=="adminSwipeAway@email.com") {
+            // If the user is the admin, navigate to the admin interface
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Admin logged in successfully."),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AdminInterface()));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Admin credentials are incorrect."),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("You don't have an account."),
-              backgroundColor: Colors.red,
-            ),
-          );
+          // Check the user collection for a regular user
+        if (user != null){
+          final DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.email).get();
+
+          if (userDoc.exists) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Logged in successfully."),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("You don't have an account."),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       }
     } on FirebaseAuthException catch (e) {

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
   DateTime? checkInDate;
   DateTime? checkOutDate;
@@ -14,7 +12,6 @@ class _HomePageState extends State<HomePage> {
   int doubleRoomCount = 0;
   String? selectedCounty;
   int _currentIndex = 0;
-
   List<String> counties = [
     'Alba',
     'Arad',
@@ -59,7 +56,6 @@ class _HomePageState extends State<HomePage> {
     'Vaslui',
     'Vrancea'
   ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +116,6 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: buildBottomNavigationBar(),
     );
   }
-
   DropdownButtonHideUnderline buildCountyDropdown() {
     return DropdownButtonHideUnderline(
       child: Container(
@@ -141,7 +136,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
   TextField buildTextField(String hint, DateTime? date, Function() onTap) {
     return TextField(
       readOnly: true,
@@ -156,7 +150,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
   TextField buildCheckInTextField() => buildTextField('Check-in Date', checkInDate, () async {
     final selectedDate = await showDatePicker(
       context: context,
@@ -177,7 +170,6 @@ class _HomePageState extends State<HomePage> {
     );
     if (selectedDate != null && selectedDate != checkInDate) setState(() => checkInDate = selectedDate);
   });
-
   TextField buildCheckOutTextField() => buildTextField('Check-out Date', checkOutDate, () async {
     final selectedDate = await showDatePicker(
       context: context,
@@ -198,7 +190,6 @@ class _HomePageState extends State<HomePage> {
     );
     if (selectedDate != null && selectedDate != checkOutDate) setState(() => checkOutDate = selectedDate);
   });
-
   Widget buildRoomSelectionRow(String roomType, int count, Function(bool) onSelectionChanged) {
     return Container(
       decoration: BoxDecoration(
@@ -266,7 +257,6 @@ class _HomePageState extends State<HomePage> {
       ],
     );
   }
-
   BottomNavigationBar buildBottomNavigationBar() {
     return BottomNavigationBar(
       items: [
