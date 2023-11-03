@@ -109,7 +109,7 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
             children: [
               Text(
                 'Login',
-                style: GoogleFonts.abyssinicaSil(
+                style: GoogleFonts.roboto(
                   color: Colors.black,
                   fontSize: MediaQuery.of(context).size.width * 0.1,
                   fontWeight: FontWeight.bold,
@@ -160,7 +160,7 @@ class _ChooseSigningOptionState extends State<ChooseSigningOption> {
                   ),
                   child: Text(
                     'LOGIN',
-                    style: GoogleFonts.abyssinicaSil(
+                    style: GoogleFonts.roboto(
                       color: Colors.white,
                       fontSize: 16.0,
                       fontWeight: FontWeight.bold,

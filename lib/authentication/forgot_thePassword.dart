@@ -30,7 +30,7 @@ class ForgotPassword extends StatelessWidget {
           children: <Widget>[
             Text(
               'Enter a new password:',
-              style: GoogleFonts.abyssinicaSil(
+              style: GoogleFonts.roboto(
                 color: Colors.black,
                 fontSize: MediaQuery.of(context).size.width * 0.08,
                 fontWeight: FontWeight.bold,
@@ -89,7 +89,7 @@ class ForgotPassword extends StatelessWidget {
               ),
               child: Text(
                 'UPDATE',
-                style: GoogleFonts.abyssinicaSil(
+                style: GoogleFonts.roboto(
                   color: Colors.white,
                   fontSize: MediaQuery.of(context).size.width * 0.05,
                   fontWeight: FontWeight.bold,
