@@ -81,7 +81,6 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   String formatCardNumber(String cardNumber) {
-    // Remove any existing whitespace and then add spaces every 4 digits
     final noSpaces = cardNumber.replaceAll(RegExp(r'\s+'), '');
     List<String> splitNumbers = [];
     for (int i = 0; i < noSpaces.length; i += 4) {
@@ -104,11 +103,10 @@ class _WalletPageState extends State<WalletPage> {
           .collection('users')
           .doc(user.uid)
           .collection('cards')
-          .doc(card.id)  // <- Use the stored document ID here
+          .doc(card.id)
           .delete();
       print('Card deleted from Firestore');
 
-      // After successful deletion, remove the card from the local list as well
       setState(() {
         _cards.removeWhere((item) => item.id == card.id);
       });
@@ -117,7 +115,6 @@ class _WalletPageState extends State<WalletPage> {
       print('Error deleting card: $e');
     }
   }
-
 
 
   Future<void> addCardToUserSubcollection({
@@ -177,7 +174,9 @@ class _WalletPageState extends State<WalletPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Add New Card'),
+        title: Text('Add New Card',
+            style: GoogleFonts.roboto(),
+        ),
         content: Form(
           key: _formKey,
           child: Column(
@@ -185,10 +184,18 @@ class _WalletPageState extends State<WalletPage> {
             children: <Widget>[
               TextFormField(
                 controller: _cardNumberController,
-                decoration: InputDecoration(labelText: 'Card Number'),
+                decoration: InputDecoration(labelText: 'Card Number',
+                  labelStyle: TextStyle(
+                    color: Colors.black.withOpacity(0.6), // Set color of label text
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black.withOpacity(0.6)),
+                  ),
+                ),
                 keyboardType: TextInputType.number,
+                cursorColor: Colors.black.withOpacity(0.6),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty || value.length!=16) {
                     return 'Please enter card number';
                   }
                   return null;
@@ -196,7 +203,15 @@ class _WalletPageState extends State<WalletPage> {
               ),
               TextFormField(
                 controller: _cardHolderController,
-                decoration: InputDecoration(labelText: 'Card Holder'),
+                decoration: InputDecoration(labelText: 'Card Holder',
+                  labelStyle: TextStyle(
+                    color: Colors.black.withOpacity(0.6),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black.withOpacity(0.6)),
+                  ),
+                ),
+                cursorColor: Colors.black.withOpacity(0.6),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter card holder name';
@@ -206,7 +221,15 @@ class _WalletPageState extends State<WalletPage> {
               ),
               TextFormField(
                 controller: _expiryDateController,
-                decoration: InputDecoration(labelText: 'Expiry Date'),
+                decoration: InputDecoration(labelText: 'Expiry Date',
+                  labelStyle: TextStyle(
+                    color: Colors.black.withOpacity(0.6),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black.withOpacity(0.6)),
+                  ),
+                ),
+                cursorColor: Colors.black.withOpacity(0.6),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter expiry date';
@@ -216,7 +239,16 @@ class _WalletPageState extends State<WalletPage> {
               ),
               TextFormField(
                 controller: _cvvController,
-                decoration: InputDecoration(labelText: 'CVV'),
+                decoration: InputDecoration(labelText: 'CVV',
+                  labelStyle: TextStyle(
+                    color: Colors.black.withOpacity(0.6),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black.withOpacity(0.6)),
+                  ),
+                ),
+                cursorColor: Colors.black.withOpacity(0.6),
+                keyboardType: TextInputType.number,
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -228,15 +260,26 @@ class _WalletPageState extends State<WalletPage> {
             ],
           ),
         ),
-        actions: <Widget>[
-          TextButton(
-            child: Text('Cancel'),
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
+        actions: <Widget>[TextButton(
+          child: Text(
+            'Cancel',
+            style: GoogleFonts.roboto(
+              color: Colors.black, // Color of the text
+            ),
           ),
+          onPressed: () {
+            Navigator.of(context).pop(); // Close the dialog
+          },
+        ),
+
           TextButton(
-            child: Text('Add'),
+            child: Text(
+              'Save',
+              style: GoogleFonts.roboto(
+                color: Colors.black, // Sets the text color to black
+                // You can also set the font weight, size, etc. as needed
+              ),
+            ),
             onPressed: _addCard, // Call the method to handle adding card
           ),
         ],
