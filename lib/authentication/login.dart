@@ -5,11 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:swipe_away/authentication/forgot_thePassword.dart';
 import 'package:swipe_away/authentication/signUp.dart';
 import 'package:swipe_away/home/search_page.dart';
-class ChooseSigningOption extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _ChooseSigningOptionState createState() => _ChooseSigningOptionState();
+  _LoginPageState createState() => _LoginPageState();
 }
-class _ChooseSigningOptionState extends State<ChooseSigningOption> {
+class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;

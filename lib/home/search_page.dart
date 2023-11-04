@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swipe_away/home/saved_page.dart';
-import 'myAccount_page.dart';
+import 'myAccount/myAccount_page.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -276,10 +276,10 @@ class _SearchPageState extends State<SearchPage> {
         // Assuming index 0 is the search icon
         switch (index) {
           case 0: // Search Page
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SearchPage()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => SearchPage()),
+            // );
             break;
           case 1: // Saved Page
             Navigator.push(

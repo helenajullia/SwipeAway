@@ -35,7 +35,7 @@ class ChoosingAuthOption extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChooseSigningOption()));
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
               },
               child: Text('Login'),
               style: ElevatedButton.styleFrom(
