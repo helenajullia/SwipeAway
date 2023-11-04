@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:swipe_away/authentication/forgot_thePassword.dart';
 import 'package:swipe_away/authentication/SignUp.dart';
 import 'package:swipe_away/home/search_page.dart';
+
+import '../adminService/adminInterface.dart';
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -28,6 +30,14 @@ class _LoginPageState extends State<LoginPage> {
       );
       final User? user = userCredential.user;
       if (user != null) {
+        // Check if the user is the admin
+        if (user.email == "adminswipeaway@yahoo.com") {
+          // Redirect to the Admin Interface
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AdminInterface()));
+          return; // Exit the function after handling admin user
+        }
+
+        // If not admin, proceed with normal user check
         final DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.email).get();
         if (userDoc.exists) {
           ScaffoldMessenger.of(context).showSnackBar(
