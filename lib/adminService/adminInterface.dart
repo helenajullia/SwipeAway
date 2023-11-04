@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../authentication/login.dart';
 
 class AdminInterface extends StatefulWidget {
   @override
@@ -7,29 +10,43 @@ class AdminInterface extends StatefulWidget {
 }
 
 class _AdminInterfaceState extends State<AdminInterface> {
-  int _selectedDestination = 0;
+  // Authentication instance
+  final _auth = FirebaseAuth.instance;
 
-  void selectDestination(int index) {
-    setState(() {
-      _selectedDestination = index;
-    });
-    // Here, you could navigate to other pages or perform other actions based on the menu selection
+  // Other state and methods...
+
+  Widget _buildSignOutButton() {
+    return ListTile(
+      leading: Icon(Icons.exit_to_app, color: Colors.red),
+      title: Text('Sign out', style: GoogleFonts.roboto(color: Colors.red)),
+      onTap: () async {
+        // Sign out from FirebaseAuth
+        await _auth.signOut();
+        // Redirect to the login page
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Admin Dashboard",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: Text("Admin Dashboard", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              // Navigate to settings page or show sign out option
+              // Assuming you want to show the sign out as a drawer or popup menu item
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return _buildSignOutButton();
+                },
+              );
             },
           ),
         ],
@@ -56,8 +73,8 @@ class _AdminInterfaceState extends State<AdminInterface> {
                 style: GoogleFonts.roboto(
                     color: Colors.black), // Set the text color to black
               ),
-              selected: _selectedDestination == 0,
-              onTap: () => selectDestination(0),
+              //selected: _selectedDestination == 0,
+              //onTap: () => selectDestination(0),
             ),
 
             // Add other ListTile widgets for more menu items...
