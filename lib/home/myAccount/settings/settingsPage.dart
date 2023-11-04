@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swipe_away/home/myAccount/settings/themePage.dart';
+import 'package:swipe_away/home/myAccount/settings/walletPage.dart';
 
 import 'notificationSettingsPage.dart';
 
@@ -40,7 +41,9 @@ class SettingsPage extends StatelessWidget {
               title: Text('Wallet', style: GoogleFonts.roboto()),
               leading: Icon(Icons.account_balance_wallet),
               onTap: () {
-                // Navigate to wallet page
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => WalletPage(),
+                ));
               },
             ),
             ListTile(

@@ -50,6 +50,7 @@ class _SavedPageState extends State<SavedPage> {
           iconTheme: IconThemeData(color: Colors.black),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
+            color: Colors.white,
             onPressed: () => _onWillPop(),
           ),
         ),
