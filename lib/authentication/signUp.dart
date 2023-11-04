@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:swipe_away/authentication/login.dart';
+
+import '../home/search_page.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -12,26 +12,13 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  int _currentPageIndex = 0;
-
-  final formKey = GlobalKey<FormState>();
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _currentPageIndex = index;
-    });
-  }
-
-
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
 
-  String firstNameFromDatabase = "";
-  String lastNameFromDatabase = "";
-
+  final formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -43,285 +30,215 @@ class _SignUpState extends State<SignUp> {
     super.dispose();
   }
 
+  void _showSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: Colors.green,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   Future<void> signUpAndSubmitData() async {
     try {
-      final authResult = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
+      final authResult = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text,
-        password: passwordController
-            .text, // You should use the hashed password here
+        password: passwordController.text,
       );
 
       final user = authResult.user;
 
       if (user != null) {
-        final email = user.email; // Get the user's email address
-
-        // Store additional user data in Firestore using email as the document ID
-        await FirebaseFirestore.instance.collection('users').doc(email).set({
+        await FirebaseFirestore.instance.collection('users').doc(user.email).set({
           'firstName': firstNameController.text,
           'lastName': lastNameController.text,
-          'email': email,
+          'email': user.email,
           'password': passwordController.text,
           'phone': phoneController.text,
         });
 
-        // You can also perform additional actions here, such as sending a verification email.
+        // Show success snackbar
+        _showSnackBar(context, 'User successfully registered.');
 
-        // Navigate to the next screen or perform any other actions you need.
+        // Navigate to HomePage
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => SearchPage()));
+
       } else {
-        // Handle the case where user is null (registration failed)
-        print('User registration failed');
+        // Show error snackbar
+        _showSnackBar(context, 'User registration failed.');
       }
     } catch (e) {
-      // Handle any registration errors here (e.g., email already exists).
-      print('Error: $e');
+      // Show error snackbar
+      _showSnackBar(context, 'Error: $e');
     }
-
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF171717),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xFF454545),
+        backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: Image.asset('assets/icons/left_arrow2.png'),
+          icon: Icon(Icons.close, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         centerTitle: true,
-        title: Text(
-          'SwipeAway',
-          style: GoogleFonts.abyssinicaSil(
-            color: Colors.white,
-            fontSize: MediaQuery.of(context).size.width * 0.06,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Image.asset(
-              'assets/icons/notifications_icon.png',
-              color: Colors.black,
-            ),
-            onPressed: () {
-              // Handle notifications icon tap
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Image.asset(
-                'assets/icons/user_icon.png',
-                scale: 0.5,
-                color: Colors.blueGrey.shade100,
+            SizedBox(height: 50), // Adjust this value to move controllers lower
+            Text(
+              'Personal details',
+              style: GoogleFonts.roboto(
+                color: Colors.black,
+                fontSize: MediaQuery.of(context).size.width * 0.1,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 10),
-            Center(
-              child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(
-                    MediaQuery.of(context).size.width * 0.08,
-                  ),
-                ),
-                child: Text(
-                  'Sign Up',
-                  style: GoogleFonts.abyssinicaSil(
-                    color: Colors.black,
-                    fontSize: MediaQuery.of(context).size.width * 0.06,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 35),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: firstNameController,
-                      decoration: InputDecoration(
-                        hintText: 'First Name',
-                        filled: true,
-                        fillColor: Color(0x9ED9D9D9),
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+            SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: firstNameController,
+                    cursorColor: Colors.black,
+                    decoration: InputDecoration(
+                      labelText: 'First Name',
+                      labelStyle: TextStyle(color: Colors.black),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                      style: GoogleFonts.abyssinicaSil(
-                        color: Colors.black,
-                        fontSize: MediaQuery.of(context).size.width * 0.03,
-                        fontWeight: FontWeight.w400,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: lastNameController,
-                      decoration: InputDecoration(
-                        hintText: 'Last Name',
-                        filled: true,
-                        fillColor: Color(0x9ED9D9D9),
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: TextField(
+                    controller: lastNameController,
+                    cursorColor: Colors.black,
+                    decoration: InputDecoration(
+                      labelText: 'Last Name',
+                      labelStyle: TextStyle(color: Colors.black),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                      style: GoogleFonts.abyssinicaSil(
-                        color: Colors.black,
-                        fontSize: MediaQuery.of(context).size.width * 0.03,
-                        fontWeight: FontWeight.w400,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  filled: true,
-                  fillColor: Color(0x9ED9D9D9),
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
                 ),
-                style: GoogleFonts.abyssinicaSil(
-                  color: Colors.black,
-                  fontSize: MediaQuery.of(context).size.width * 0.03,
-                  fontWeight: FontWeight.w400,
+              ],
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              cursorColor: Colors.black,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                labelStyle: TextStyle(color: Colors.black),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            Center(
-              child: TextField(
-                controller: passwordController,
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  filled: true,
-                  fillColor: Color(0x9ED9D9D9),
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
+            SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              cursorColor: Colors.black,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                labelStyle: TextStyle(color: Colors.black),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
-                style: GoogleFonts.abyssinicaSil(
-                  color: Colors.black,
-                  fontSize: MediaQuery.of(context).size.width * 0.03,
-                  fontWeight: FontWeight.w400,
-                ),
-                obscureText: true,
-              ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: TextField(
-                controller: phoneController,
-                decoration: InputDecoration(
-                  hintText: 'Phone No',
-                  filled: true,
-                  fillColor: Color(0x9ED9D9D9),
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                style: GoogleFonts.abyssinicaSil(
-                  color: Colors.black,
-                  fontSize: MediaQuery.of(context).size.width * 0.03,
-                  fontWeight: FontWeight.w400,
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
                 ),
               ),
+              obscureText: true,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 16),
+            TextField(
+              controller: phoneController,
+              cursorColor: Colors.black,
+              decoration: InputDecoration(
+                labelText: 'Phone',
+                labelStyle: TextStyle(color: Colors.black),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
+                ),
+              ),
+              keyboardType: TextInputType.phone,
+            ),
+            SizedBox(height: 30),
             Center(
               child: ElevatedButton(
-                onPressed: (){
-                    signUpAndSubmitData();
+                onPressed: () {
+                  signUpAndSubmitData();
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFD56A1B),
-                  padding: EdgeInsets.symmetric(horizontal: 80, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                child: Text(
+                  'SIGN UP',
+                  style: GoogleFonts.roboto(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                child: Text(
-                  'Submit',
-                  style: GoogleFonts.abyssinicaSil(
-                    color: Colors.black,
-                    fontSize: MediaQuery.of(context).size.width * 0.06,
-                    fontWeight: FontWeight.w400,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Already have an account?",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
+                  },
+                  child: Text(
+                    "Sign In",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              'assets/icons/home_icon.png',
-              width: MediaQuery.of(context).size.width * 0.08,
-              height: MediaQuery.of(context).size.width * 0.15,
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              'assets/icons/saved_icon.png',
-              width: MediaQuery.of(context).size.width * 0.08,
-              height: MediaQuery.of(context).size.width * 0.15,
-            ),
-            label: 'Saved',
-          ),
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              'assets/icons/bookings_icon.png',
-              width: MediaQuery.of(context).size.width * 0.08,
-              height: MediaQuery.of(context).size.width * 0.15,
-            ),
-            label: 'Bookings',
-          ),
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              'assets/icons/myAccount_icon.png',
-              width: MediaQuery.of(context).size.width * 0.08,
-              height: MediaQuery.of(context).size.width * 0.15,
-            ),
-            label: 'My Account',
-          ),
-        ],
-        currentIndex: _currentPageIndex,
-        unselectedItemColor: Colors.black,
-        selectedItemColor: Colors.black,
-        onTap: _onItemTapped,
       ),
     );
   }
