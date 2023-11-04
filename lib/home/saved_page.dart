@@ -45,7 +45,7 @@ class _SavedPageState extends State<SavedPage> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Saved', style: TextStyle(color: Colors.black)),
+          title: Text('Saved', style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.black,
           iconTheme: IconThemeData(color: Colors.black),
           leading: IconButton(
