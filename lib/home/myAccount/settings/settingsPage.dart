@@ -6,6 +6,8 @@ import 'package:swipe_away/home/myAccount/settings/walletPage.dart';
 
 //import 'notificationSettingsPage.dart';
 
+import 'notificationSettingsPage.dart';
+
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -33,8 +35,10 @@ class SettingsPage extends StatelessWidget {
               leading: Icon(Icons.notifications),
               onTap: () {
                 // This will push the ThemePage onto the navigation stack
-
-              }
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => NotificationSettingsPage(), // Replace ThemePage with your actual theme page widget
+                ));
+              },
             ),
             ListTile(
               title: Text('Wallet', style: GoogleFonts.roboto()),
