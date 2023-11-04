@@ -46,7 +46,7 @@ class _SavedPageState extends State<SavedPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text('Saved', style: TextStyle(color: Colors.black)),
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.black,
           iconTheme: IconThemeData(color: Colors.black),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),

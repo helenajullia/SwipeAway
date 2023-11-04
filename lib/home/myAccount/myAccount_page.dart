@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:swipe_away/home/myAccount/settings/settingsPage.dart';
 import 'package:swipe_away/home/saved_page.dart';
 import 'package:swipe_away/home/search_page.dart';
 import '../../authentication/login.dart';
@@ -151,12 +152,19 @@ class _MyAccountPageState extends State<MyAccountPage> {
       leading: Icon(icon, color: Colors.black),
       title: Text(title, style: GoogleFonts.roboto(color: Colors.black)),
       onTap: () {
-        if (title == 'Help & feedback') {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => HelpFeedbackPage(userEmail: '',),
-          ));
+        switch (title) {
+          case 'Help & feedback':
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => HelpFeedbackPage(userEmail: _userDetails.email),
+            ));
+            break;
+          case 'Settings':
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => SettingsPage(),
+            ));
+            break;
+        // Add other cases for different list items if needed
         }
-        // Implement other list item taps as needed
       },
     );
   }
@@ -165,7 +173,7 @@ class _MyAccountPageState extends State<MyAccountPage> {
 
   Widget buildBottomNavigationBar() {
     return BottomNavigationBar(
-      backgroundColor: Colors.white,
+      //backgroundColor: Colors.white,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
         BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Saved'),

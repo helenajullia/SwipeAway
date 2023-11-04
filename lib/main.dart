@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:swipe_away/authentication/choosing_authOption.dart';
 import 'authentication/login.dart';
+import 'home/myAccount/settings/themePage.dart';
 import 'introScreen/intro_page.dart';
 import 'dart:async';
 import 'firebase_options.dart';
+import 'package:swipe_away/home/myAccount/settings/themePage.dart'; // Make sure to create this file with light and dark theme data
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,35 +15,27 @@ void main() async {
   runApp(MyApp());
 }
 
+class ThemeController extends GetxController {
+  var isDarkModeEnabled = false.obs;
 
-Future<void> initializeFirebase() async {
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    // Handle any Firebase initialization errors here.
-    print("Firebase initialization error: $e");
+  void toggleTheme(bool isOn) {
+    isDarkModeEnabled.value = isOn;
   }
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final ThemeController themeController = Get.put(ThemeController());
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return Obx(() => GetMaterialApp(
       title: 'SwipeAway',
-      theme: ThemeData(
-        fontFamily: 'Roboto',  // This sets the global font to Roboto
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.deepPurple,
-        ),
-      ),
+      theme: themeController.isDarkModeEnabled.value ? ThemeData.dark() : ThemeData.light(),
       debugShowCheckedModeBanner: false,
-      home: IntroScreenWithDelay(), // Use IntroScreenWithDelay to control navigation
-    );
+      home: IntroScreenWithDelay(),
+    ));
   }
 }
-
 
 class IntroScreenWithDelay extends StatefulWidget {
   @override
@@ -65,8 +59,6 @@ class _IntroScreenWithDelayState extends State<IntroScreenWithDelay> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: showIntro ? IntroScreen() : ChoosingAuthOption(),
-    );
+    return showIntro ? IntroScreen() : ChoosingAuthOption();
   }
 }
