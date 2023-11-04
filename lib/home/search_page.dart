@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-class HomePage extends StatefulWidget {
+import 'package:swipe_away/home/saved_page.dart';
+import 'myAccount_page.dart';
+
+class SearchPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _SearchPageState createState() => _SearchPageState();
 }
-class _HomePageState extends State<HomePage> {
+
+class _SearchPageState extends State<SearchPage> {
   DateTime? checkInDate;
   DateTime? checkOutDate;
   int singleRoomCount = 0;
@@ -267,7 +271,31 @@ class _HomePageState extends State<HomePage> {
       currentIndex: _currentIndex,
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey.shade600,
-      onTap: (index) => setState(() => _currentIndex = index),
+      onTap: (index) {
+        setState(() => _currentIndex = index);
+        // Assuming index 0 is the search icon
+        switch (index) {
+          case 0: // Search Page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchPage()),
+            );
+            break;
+          case 1: // Saved Page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SavedPage()),
+            );
+            break;
+          case 2: // My Account Page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MyAccountPage()),
+            );
+            break;
+        // Handle other indices, if necessary
+        }
+      },
     );
   }
 }
