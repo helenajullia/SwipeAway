@@ -59,6 +59,67 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
+  void _initializeCardState() {
+    _cards.sort((a, b) => a.cardNumber.compareTo(b.cardNumber));
+    _cardVisibility.clear();
+    for (int i = 0; i < _cards.length; i++) {
+      _cardVisibility[i] = false; // Initialize all cards as not visible
+    }
+  }
+
+  void _sortCards() {
+    _cards.sort((a, b) => a.cardNumber.compareTo(b.cardNumber));
+  }
+
+  final Map<int, bool> _cardVisibility = {};
+  void _toggleCardNumberVisibility(int index) {
+    print('Toggling visibility for card at index $index');
+    setState(() {
+      _cardVisibility[index] = !(_cardVisibility[index] ?? false);
+      print('Visibility is now: ${_cardVisibility[index]}');
+    });
+  }
+
+  String formatCardNumber(String cardNumber) {
+    // Remove any existing whitespace and then add spaces every 4 digits
+    final noSpaces = cardNumber.replaceAll(RegExp(r'\s+'), '');
+    List<String> splitNumbers = [];
+    for (int i = 0; i < noSpaces.length; i += 4) {
+      int end = (i + 4 < noSpaces.length) ? i + 4 : noSpaces.length;
+      splitNumbers.add(noSpaces.substring(i, end));
+    }
+    return splitNumbers.join(' ');
+  }
+
+  Future<void> _deleteCardFromUserSubcollection(CardModel card) async {
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      print('No user logged in');
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('cards')
+          .doc(card.id)  // <- Use the stored document ID here
+          .delete();
+      print('Card deleted from Firestore');
+
+      // After successful deletion, remove the card from the local list as well
+      setState(() {
+        _cards.removeWhere((item) => item.id == card.id);
+      });
+
+    } catch (e) {
+      print('Error deleting card: $e');
+    }
+  }
+
+
+
   Future<void> addCardToUserSubcollection({
     required String cardNumber,
     required String cardHolder,
@@ -77,16 +138,18 @@ class _WalletPageState extends State<WalletPage> {
         .doc(user.uid)
         .collection('cards');
 
+    final formattedCardNumber = formatCardNumber(cardNumber);
+
     final newCardData = {
-      'cardNumber': cardNumber,
+      'cardNumber': formattedCardNumber,
       'cardHolder': cardHolder,
       'expiryDate': expiryDate,
-      'cvv': cvv, // Reminder: Storing CVV is against PCI DSS regulations.
+      'cvv': cvv,
     };
 
     try {
       await cardsCollection.add(newCardData);
-      _fetchUserCards(); // Refresh the card list
+      _fetchUserCards();
     } catch (e) {
       print('Error adding card: $e');
     }
@@ -188,6 +251,7 @@ class _WalletPageState extends State<WalletPage> {
         title: Text('Wallet', style: GoogleFonts.roboto()),
         backgroundColor: Colors.black,
       ),
+      // Inside your Scaffold's body, where the ListView.builder is called:
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _cards.isEmpty
@@ -196,34 +260,69 @@ class _WalletPageState extends State<WalletPage> {
         itemCount: _cards.length,
         itemBuilder: (context, index) {
           final card = _cards[index];
-          return ListTile(
-            title: Text(
-              '**** **** **** ' + card.cardNumber.substring(card.cardNumber.length - 4),
-              style: TextStyle(color: Colors.black),
+          final isVisible = _cardVisibility[index] ?? false;
+          return Dismissible(
+            key: Key(card.cardNumber),
+            background: Container(
+              color: Colors.red,
+              alignment: AlignmentDirectional.centerEnd,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                child: Icon(Icons.delete, color: Colors.white),
+              ),
             ),
-            subtitle: Text(
-              card.cardHolder,
-              style: TextStyle(color: Colors.white70),
+            direction: DismissDirection.endToStart,
+            onDismissed: (direction) async {
+              await _deleteCardFromUserSubcollection(card);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Card deleted"),
+                ),
+              );
+            },
+
+            child: ListTile(
+              leading: Text("${index + 1}."), // This adds the index number to the front
+              title: Text(
+                isVisible
+                    ? formatCardNumber(card.cardNumber) // Using the formatted card number
+                    : '**** **** **** ' + card.cardNumber.substring(card.cardNumber.length - 4),
+                style: TextStyle(color: Colors.black),
+              ),
+              subtitle: Text(
+                card.cardHolder,
+                style: TextStyle(color: Colors.white70),
+              ),
+              trailing: IconButton(
+                icon: Icon(
+                  isVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.black,
+                ),
+                onPressed: () => _toggleCardNumberVisibility(index),
+              ),
             ),
           );
         },
       ),
+
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.black,
         onPressed: _showAddCardDialog,
+        tooltip: 'Add Card',
         child: Icon(Icons.add),
       ),
     );
   }
 }
-
 class CardModel {
+  String id;
   String cardNumber;
   String cardHolder;
   String expiryDate;
   String cvv;
 
   CardModel({
+    required this.id,
     required this.cardNumber,
     required this.cardHolder,
     required this.expiryDate,
@@ -232,6 +331,7 @@ class CardModel {
 
   factory CardModel.fromDocumentSnapshot(DocumentSnapshot doc) {
     return CardModel(
+      id: doc.id,
       cardNumber: doc['cardNumber'],
       cardHolder: doc['cardHolder'],
       expiryDate: doc['expiryDate'],
@@ -239,3 +339,4 @@ class CardModel {
     );
   }
 }
+
