@@ -221,7 +221,7 @@ class _SignUpState extends State<SignUp> {
                 Text(
                   "Already have an account?",
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Colors.black ,
                   ),
                 ),
                 TextButton(
