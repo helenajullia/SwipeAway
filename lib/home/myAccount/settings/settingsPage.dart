@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swipe_away/home/myAccount/settings/themePage.dart';
 
+import 'notificationSettingsPage.dart';
+
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -14,7 +16,6 @@ class SettingsPage extends StatelessWidget {
         children: ListTile.divideTiles(
           context: context,
           tiles: [
-
             ListTile(
               title: Text('Theme', style: GoogleFonts.roboto()),
               leading: Icon(Icons.palette),
@@ -29,7 +30,10 @@ class SettingsPage extends StatelessWidget {
               title: Text('Notification Settings', style: GoogleFonts.roboto()),
               leading: Icon(Icons.notifications),
               onTap: () {
-                // Navigate to notification settings page
+                // This will push the ThemePage onto the navigation stack
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => NotificationSettingsPage(), // Replace ThemePage with your actual theme page widget
+                ));
               },
             ),
             ListTile(
