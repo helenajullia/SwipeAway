@@ -38,7 +38,7 @@ class _AdminInterfaceState extends State<AdminInterface> {
         backgroundColor: Colors.black,
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.output_sharp),
             onPressed: () {
               // Assuming you want to show the sign out as a drawer or popup menu item
               showModalBottomSheet(
