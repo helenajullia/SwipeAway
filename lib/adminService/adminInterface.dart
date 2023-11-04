@@ -25,14 +25,14 @@ class _AdminInterfaceState extends State<AdminInterface> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
-         actions: [
-           IconButton(
+        actions: [
+          IconButton(
             icon: Icon(Icons.settings),
-             onPressed: () {
-               // Navigate to settings page or show sign out option
-             },
-           ),
-         ],
+            onPressed: () {
+              // Navigate to settings page or show sign out option
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -51,76 +51,130 @@ class _AdminInterfaceState extends State<AdminInterface> {
               ),
             ),
             ListTile(
-              title: Text('Dashboard', style: GoogleFonts.roboto()),
+              title: Text(
+                'Handle Issues & Suggestions',
+                style: GoogleFonts.roboto(
+                    color: Colors.black), // Set the text color to black
+              ),
               selected: _selectedDestination == 0,
               onTap: () => selectDestination(0),
             ),
-            ListTile(
-              title: Text('Manage Users', style: GoogleFonts.roboto()),
-              selected: _selectedDestination == 1,
-              onTap: () => selectDestination(1),
-            ),
-            ListTile(
-              title: Text('Manage Hotels', style: GoogleFonts.roboto()),
-              selected: _selectedDestination == 2,
-              onTap: () => selectDestination(2),
-            ),
-            ListTile(
-              title: Text('Manage Bookings', style: GoogleFonts.roboto()),
-              selected: _selectedDestination == 3,
-              onTap: () => selectDestination(3),
-            ),
+
             // Add other ListTile widgets for more menu items...
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            // Add Widgets here for your admin interface
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                color: Colors.white,
-                child: ListTile(
-                  leading: Icon(Icons.people, color: Colors.black),
-                  title: Text('Manage Users', style: GoogleFonts.roboto()),
-                  onTap: () {
-                    // Handle manage users
-                  },
+      body: Stack(
+        children: <Widget>[
+          // Background image with opacity
+          Opacity(
+            opacity: 0.25, // Adjust the opacity as needed
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/admin.png'),
+                  // Replace with your image asset or network image
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                color: Colors.white,
-                child: ListTile(
-                  leading: Icon(Icons.hotel, color: Colors.black),
-                  title: Text('Manage Hotels', style: GoogleFonts.roboto()),
-                  onTap: () {
-                    // Handle manage hotels
-                  },
+          ),
+          // Your scrollable content on top of the background image
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                // Add Widgets here for your admin interface
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    color: Colors.white,
+                    child: ExpansionTile(
+                      leading: Icon(Icons.people, color: Colors.black),
+                      title: Text('Manage Users', style: GoogleFonts.roboto()),
+                      children: <Widget>[
+                        ListTile(
+                          leading: Icon(Icons.visibility, color: Colors.black),
+                          title: Text('View Users', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            // Handle view users
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.delete, color: Colors.black),
+                          title: Text('Delete Users', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            // Handle delete users
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                color: Colors.white,
-                child: ListTile(
-                  leading: Icon(Icons.luggage, color: Colors.black),
-                  title: Text('Manage Bookings', style: GoogleFonts.roboto()),
-                  onTap: () {
-                    // Handle manage hotels
-                  },
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    color: Colors.white,
+                    child: ExpansionTile(
+                      leading: Icon(Icons.hotel, color: Colors.black),
+                      title: Text('Manage Hotels', style: GoogleFonts.roboto()),
+                      children: <Widget>[
+                        ListTile(
+                          leading: Icon(Icons.visibility, color: Colors.black),
+                          title: Text('View Hotels', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            // Handle view users
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.add, color: Colors.black),
+                          title: Text('Add Hotels', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            // Handle view users
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.delete, color: Colors.black),
+                          title: Text('Delete Hotels', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            // Handle delete users
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    color: Colors.white,
+                    child: ExpansionTile(
+                      leading: Icon(Icons.luggage, color: Colors.black),
+                      title: Text('Manage Bookings', style: GoogleFonts.roboto()),
+                      children: <Widget>[
+                        ListTile(
+                          leading: Icon(Icons.visibility, color: Colors.black),
+                          title: Text('View Bookings', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            // Handle view users
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.delete, color: Colors.black),
+                          title: Text('Delete Bookings', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            // Handle delete users
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // ... more cards for other options
+              ],
             ),
-            // ... more cards for other options
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
