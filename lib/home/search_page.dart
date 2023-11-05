@@ -106,7 +106,7 @@ class _SearchPageState extends State<SearchPage> {
                     onPressed: () {}, // Handle search
                     child: Text('Search'),
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.black,
+                      backgroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                     ),
@@ -175,10 +175,13 @@ class _SearchPageState extends State<SearchPage> {
     if (selectedDate != null && selectedDate != checkInDate) setState(() => checkInDate = selectedDate);
   });
   TextField buildCheckOutTextField() => buildTextField('Check-out Date', checkOutDate, () async {
+    DateTime initialCheckoutDate = checkInDate?.add(Duration(days: 1)) ?? DateTime.now();
+    DateTime firstCheckoutDate = initialCheckoutDate.isBefore(DateTime.now()) ? DateTime.now() : initialCheckoutDate;
+
     final selectedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
+      initialDate: initialCheckoutDate, // Set initial date to the day after check in date or today if null
+      firstDate: firstCheckoutDate, // Ensure we can't pick a date before the check in date
       lastDate: DateTime(2030),
       builder: (BuildContext context, Widget? child) {
         return Theme(
@@ -192,8 +195,13 @@ class _SearchPageState extends State<SearchPage> {
         );
       },
     );
-    if (selectedDate != null && selectedDate != checkOutDate) setState(() => checkOutDate = selectedDate);
+
+    // Set the state of checkOutDate to the new selection if it is after the checkInDate
+    if (selectedDate != null && (checkInDate == null || selectedDate.isAfter(checkInDate!))) {
+      setState(() => checkOutDate = selectedDate);
+    }
   });
+
   Widget buildRoomSelectionRow(String roomType, int count, Function(bool) onSelectionChanged) {
     return Container(
       decoration: BoxDecoration(
@@ -241,20 +249,20 @@ class _SearchPageState extends State<SearchPage> {
       children: [
         buildRoomSelectionRow("Single", singleRoomCount, (bool increment) {
           setState(() {
-            if (increment) {
+            if (increment && singleRoomCount < 6) {
               singleRoomCount++;
-            } else {
-              if (singleRoomCount > 0) singleRoomCount--; // Allow to decrement down to 0
+            } else if (!increment && singleRoomCount > 0) {
+              singleRoomCount--;
             }
           });
         }),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         buildRoomSelectionRow("Double", doubleRoomCount, (bool increment) {
           setState(() {
-            if (increment) {
+            if (increment && doubleRoomCount < 6) {
               doubleRoomCount++;
-            } else {
-              if (doubleRoomCount > 0) doubleRoomCount--; // Allow to decrement down to 0
+            } else if (!increment && doubleRoomCount > 0) {
+              doubleRoomCount--;
             }
           });
         }),
