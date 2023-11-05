@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:swipe_away/home/myAccount/reviewsPage.dart';
 import 'package:swipe_away/home/myAccount/settings/settingsPage.dart';
 import 'package:swipe_away/home/saved_page.dart';
 import 'package:swipe_away/home/search_page.dart';
@@ -163,6 +164,11 @@ class _MyAccountPageState extends State<MyAccountPage> {
               builder: (context) => SettingsPage(),
             ));
             break;
+          case 'Reviews':
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ReviewPage(),
+            ));
+
         // Add other cases for different list items if needed
         }
       },
