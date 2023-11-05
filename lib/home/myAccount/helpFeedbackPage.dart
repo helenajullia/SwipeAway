@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HelpFeedbackPage extends StatelessWidget {
-  final String userEmail; // User's email is passed to the constructor
+  final String userEmail;
 
   HelpFeedbackPage({required this.userEmail});
 
   @override
   Widget build(BuildContext context) {
-    String selectedIssue = "General Feedback"; // Default issue type
+    String selectedIssue = "General Feedback";
     List<String> commonIssues = [
       "General Feedback",
       "App Crashes",
@@ -34,7 +34,11 @@ class HelpFeedbackPage extends StatelessWidget {
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
                 labelText: 'Select an issue',
+                labelStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder( // Add this
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),
+                ),
               ),
               value: selectedIssue,
               onChanged: (String? newValue) {
@@ -51,17 +55,23 @@ class HelpFeedbackPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             TextFormField(
+              cursorColor: Colors.black,
               maxLines: 6,
               decoration: InputDecoration(
                 labelText: 'Your Message',
+                labelStyle: TextStyle(color: Colors.black),
                 hintText: 'Please enter your message here',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
                 border: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),
+                ),
               ),
               // Include form validation if needed
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(primary: Colors.black), // Button color black
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black), // Button color black
               child: Text('Send Feedback', style: GoogleFonts.roboto()),
               onPressed: () {
                 // Implement the logic to send feedback (e.g., using email or a backend service)
