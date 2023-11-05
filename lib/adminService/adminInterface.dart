@@ -70,11 +70,9 @@ class _AdminInterfaceState extends State<AdminInterface> {
             ListTile(
               title: Text(
                 'Handle Issues & Suggestions',
-                style: GoogleFonts.roboto(
-                    color: Colors.black), // Set the text color to black
+                style: GoogleFonts.roboto(color: Colors.black),
               ),
-              //selected: _selectedDestination == 0,
-              //onTap: () => selectDestination(0),
+              //onTap: _handleIssuesAndSuggestionsPage, // Add the tap callback here
             ),
 
             // Add other ListTile widgets for more menu items...
