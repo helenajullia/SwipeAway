@@ -13,15 +13,23 @@ class ThemePage extends StatelessWidget {
         title: Text('Theme', style: GoogleFonts.roboto()),
         backgroundColor: Colors.black,
       ),
-      body: Center(
-        child: SwitchListTile(
-          title: Text('Dark Mode',style: GoogleFonts.roboto(),),
-          value: themeController.isDarkModeEnabled.value,
-          onChanged: (bool value) {
-            themeController.toggleTheme(value);
-            //Navigator.pop(context); // Close the ThemePage after changing the theme
-          },
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SwitchListTile(
+            title: Text(
+              'Dark Mode',
+              style: GoogleFonts.roboto(),
+            ),
+            value: themeController.isDarkModeEnabled.value,
+            onChanged: (bool value) {
+              themeController.toggleTheme(value);
+              Navigator.pop(context); // Close the ThemePage after changing the theme
+            },
+          ),
+
+        ],
       ),
     );
   }

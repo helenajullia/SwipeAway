@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:swipe_away/adminService/adminDashboard/manageUsers.dart';
 
 import '../authentication/login.dart';
 
@@ -108,13 +109,20 @@ class _AdminInterfaceState extends State<AdminInterface> {
                     color: Colors.white,
                     child: ExpansionTile(
                       leading: Icon(Icons.people, color: Colors.black),
-                      title: Text('Manage Users', style: GoogleFonts.roboto()),
+                      title: Text(
+                        'Manage Users',
+                        style: GoogleFonts.roboto(
+                          color: Colors.black,
+                        ),
+                      ),
                       children: <Widget>[
                         ListTile(
                           leading: Icon(Icons.visibility, color: Colors.black),
                           title: Text('View Users', style: GoogleFonts.roboto()),
                           onTap: () {
-                            // Handle view users
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ManageUsers(), // Replace ThemePage with your actual theme page widget
+                            ));
                           },
                         ),
                         ListTile(

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:swipe_away/authentication/choosing_authOption.dart';
 import 'authentication/login.dart';
-//import 'home/myAccount/settings/notificationSettingsPage.dart';
+import 'home/myAccount/settings/notificationSettingsPage.dart';
 import 'home/myAccount/settings/themePage.dart';
 import 'introScreen/intro_page.dart';
 import 'dart:async';
@@ -14,7 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: firebaseOptions);
   runApp(MyApp());
-  //Get.lazyPut(() => NotificationController());
+  Get.lazyPut(() => NotificationController());
 }
 
 class ThemeController extends GetxController {
