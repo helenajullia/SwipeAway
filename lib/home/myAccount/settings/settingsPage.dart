@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:swipe_away/home/myAccount/settings/changePassword.dart';
 import 'package:swipe_away/home/myAccount/settings/themePage.dart';
 import 'package:swipe_away/home/myAccount/settings/walletPage.dart';
 
@@ -48,7 +49,9 @@ class SettingsPage extends StatelessWidget {
               title: Text('Change Password', style: GoogleFonts.roboto()),
               leading: Icon(Icons.lock),
               onTap: () {
-                // Navigate to change password page
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ChangePassword(),
+                ));
               },
             ),
             // ... Add other ListTile widgets for each setting as needed
