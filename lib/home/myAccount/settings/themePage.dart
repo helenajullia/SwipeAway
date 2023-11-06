@@ -25,7 +25,6 @@ class ThemePage extends StatelessWidget {
             value: themeController.isDarkModeEnabled.value,
             onChanged: (bool value) {
               themeController.toggleTheme(value);
-              Navigator.pop(context); // Close the ThemePage after changing the theme
             },
           ),
 
