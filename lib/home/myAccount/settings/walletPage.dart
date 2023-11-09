@@ -59,17 +59,6 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
-  void _initializeCardState() {
-    _cards.sort((a, b) => a.cardNumber.compareTo(b.cardNumber));
-    _cardVisibility.clear();
-    for (int i = 0; i < _cards.length; i++) {
-      _cardVisibility[i] = false; // Initialize all cards as not visible
-    }
-  }
-
-  void _sortCards() {
-    _cards.sort((a, b) => a.cardNumber.compareTo(b.cardNumber));
-  }
 
   final Map<int, bool> _cardVisibility = {};
   void _toggleCardNumberVisibility(int index) {
@@ -104,11 +93,11 @@ class _WalletPageState extends State<WalletPage> {
           .collection('users')
           .doc(user.uid)
           .collection('cards')
-          .doc(card.id)  // <- Use the stored document ID here
+          .doc(card.id)
           .delete();
       print('Card deleted from Firestore');
 
-      // After successful deletion, remove the card from the local list as well
+
       setState(() {
         _cards.removeWhere((item) => item.id == card.id);
       });

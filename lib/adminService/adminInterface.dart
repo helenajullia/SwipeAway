@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swipe_away/adminService/adminDashboard/manageUsers.dart';
@@ -11,19 +13,85 @@ class AdminInterface extends StatefulWidget {
 }
 
 class _AdminInterfaceState extends State<AdminInterface> {
-  // Authentication instance
+
   final _auth = FirebaseAuth.instance;
 
-  // Other state and methods...
+  Widget _buildUserList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('users').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Text('No users found');
+        }
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return CircularProgressIndicator();
+          default:
+            return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                var userDoc = snapshot.data!.docs[index];
+                var userData = userDoc.data() as Map<String, dynamic>; // Cast the data to a Map
+
+                // Debugging
+                print('User Data: $userData');
+
+                String firstName = userData.containsKey('firstName') ? userData['firstName'] : 'Unknown';
+                String lastName = userData.containsKey('lastName') ? userData['lastName'] : 'Unknown';
+                String userEmail = userData.containsKey('email') ? userData['email'] : 'No Email';
+
+                return Dismissible(
+                  key: Key(userDoc.id),
+                  background: Container(color: Colors.red),
+                  onDismissed: (direction) async {
+                    await FirebaseFirestore.instance.collection('users').doc(userDoc.id).delete();
+
+                    // Show an AlertDialog
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("User Deleted"),
+                          content: Text("The user has been successfully deleted."),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text("OK"),
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Dismiss the dialog
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+
+
+
+
+                  child: ListTile(
+                    title: Text(firstName+' '+lastName),
+                    subtitle: Text(userEmail),
+                  ),
+                );
+              },
+            );
+        }
+      },
+    );
+  }
+
+
 
   Widget _buildSignOutButton() {
     return ListTile(
       leading: Icon(Icons.exit_to_app, color: Colors.red),
       title: Text('Sign out', style: GoogleFonts.roboto(color: Colors.red)),
       onTap: () async {
-        // Sign out from FirebaseAuth
         await _auth.signOut();
-        // Redirect to the login page
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
@@ -41,7 +109,6 @@ class _AdminInterfaceState extends State<AdminInterface> {
           IconButton(
             icon: Icon(Icons.output_sharp),
             onPressed: () {
-              // Assuming you want to show the sign out as a drawer or popup menu item
               showModalBottomSheet(
                 context: context,
                 builder: (BuildContext context) {
@@ -74,19 +141,14 @@ class _AdminInterfaceState extends State<AdminInterface> {
                 style: GoogleFonts.roboto(
                     color: Colors.black), // Set the text color to black
               ),
-              //selected: _selectedDestination == 0,
-              //onTap: () => selectDestination(0),
             ),
-
-            // Add other ListTile widgets for more menu items...
           ],
         ),
       ),
       body: Stack(
         children: <Widget>[
-          // Background image with opacity
           Opacity(
-            opacity: 0.25, // Adjust the opacity as needed
+            opacity: 0.25,
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -97,12 +159,11 @@ class _AdminInterfaceState extends State<AdminInterface> {
               ),
             ),
           ),
-          // Your scrollable content on top of the background image
+
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                // Add Widgets here for your admin interface
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
@@ -129,7 +190,12 @@ class _AdminInterfaceState extends State<AdminInterface> {
                           leading: Icon(Icons.delete, color: Colors.black),
                           title: Text('Delete Users', style: GoogleFonts.roboto()),
                           onTap: () {
-                            // Handle delete users
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return _buildUserList(); // Call the function here
+                              },
+                            );
                           },
                         ),
                       ],
