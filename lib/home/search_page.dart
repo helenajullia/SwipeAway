@@ -141,6 +141,9 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
   TextField buildTextField(String hint, DateTime? date, Function() onTap) {
+    // Check if dark mode is enabled
+    bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+
     return TextField(
       readOnly: true,
       onTap: onTap,
@@ -148,12 +151,14 @@ class _SearchPageState extends State<SearchPage> {
         hintText: date?.toLocal().toString().split(' ')[0] ?? hint,
         filled: true,
         fillColor: Colors.white.withOpacity(0.9),
-        suffixIcon: Icon(Icons.calendar_today, color: Colors.black),
+        suffixIcon: Icon(Icons.calendar_today, color: isDarkMode ? Colors.white : Colors.black),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.black)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: isDarkMode ? Colors.white : Colors.black)),
+        hintStyle: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
       ),
     );
   }
+
   TextField buildCheckInTextField() => buildTextField('Check-in Date', checkInDate, () async {
     final selectedDate = await showDatePicker(
       context: context,

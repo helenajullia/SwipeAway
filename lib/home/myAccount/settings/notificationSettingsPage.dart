@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'notificationController.dart';
 
 class NotificationSettingsPage extends StatelessWidget {
-  // This would be your controller where the notification logic is handled
   final NotificationController notificationController = Get.find();
 
   @override
@@ -14,9 +14,9 @@ class NotificationSettingsPage extends StatelessWidget {
         backgroundColor: Colors.black,
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 16.0), // Add padding at the top
+        padding: const EdgeInsets.only(top: 16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start, // Aligns to the top
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -27,28 +27,18 @@ class NotificationSettingsPage extends StatelessWidget {
               ),
             ),
             Card(
-              margin: EdgeInsets.all(16), // Add some margin around the card
-              child: SwitchListTile(
+              margin: EdgeInsets.all(16),
+              child: Obx(() => SwitchListTile(
                 title: Text('Enable Notifications', style: GoogleFonts.roboto()),
                 value: notificationController.areNotificationsEnabled.value,
                 onChanged: (bool value) {
                   notificationController.toggleNotifications(value);
                 },
-              ),
+              )),
             ),
-            // ... other items can be added here
           ],
         ),
       ),
     );
-  }
-}
-
-class NotificationController extends GetxController {
-  var areNotificationsEnabled = false.obs;
-
-  void toggleNotifications(bool value) {
-    areNotificationsEnabled.value = value;
-    // Here you would have the logic to actually enable/disable notifications
   }
 }

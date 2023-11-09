@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:swipe_away/authentication/choosing_authOption.dart';
 import 'authentication/login.dart';
+import 'home/myAccount/settings/notificationController.dart';
 import 'home/myAccount/settings/notificationSettingsPage.dart';
 //import 'home/myAccount/settings/notificationSettingsPage.dart';
 import 'home/myAccount/settings/themePage.dart';
