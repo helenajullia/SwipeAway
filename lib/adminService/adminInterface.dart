@@ -99,6 +99,55 @@ class _AdminInterfaceState extends State<AdminInterface> {
     );
   }
 
+  Widget _buildFeedbackList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('feedback')
+          .orderBy('timestamp', descending: true) // Orders feedback by timestamp, newest first
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Text('No feedback found');
+        }
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return CircularProgressIndicator();
+          default:
+            return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                var feedbackDoc = snapshot.data!.docs[index];
+                var feedbackData = feedbackDoc.data() as Map<String, dynamic>;
+
+                return ListTile(
+                  title: Text(feedbackData['message']),
+                  subtitle: Text("From: ${feedbackData['email']} - Issue: ${feedbackData['issue']}"),
+                  trailing: IconButton(
+                    icon: Icon(
+                      Icons.check,
+                      // Provide a default value of false if feedbackData['solved'] is null
+                      color: (feedbackData['solved'] as bool? ?? false) ? Colors.green : Colors.grey,
+                    ),
+                    onPressed: () async {
+                      // Toggle the 'solved' status when the check icon is tapped
+                      bool isSolved = feedbackData['solved'] ?? false;
+                      await FirebaseFirestore.instance
+                          .collection('feedback')
+                          .doc(feedbackDoc.id)
+                          .update({'solved': !isSolved});
+                    },
+                  ),
+                );
+              },
+            );
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,11 +185,19 @@ class _AdminInterfaceState extends State<AdminInterface> {
               ),
             ),
             ListTile(
-              title: Text(
-                'Handle Issues & Suggestions',
-                style: GoogleFonts.roboto(
-                    color: Colors.black), // Set the text color to black
-              ),
+              title: Text('Handle Issues & Feedback', style: GoogleFonts.roboto()),
+              onTap: () {
+                Navigator.of(context).pop(); // Close the drawer
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Scaffold(
+                    appBar: AppBar(
+                      title: Text('Issues & Feedback', style: GoogleFonts.roboto()),
+                      backgroundColor: Colors.black, // Set the background color to black
+                    ),
+                    body: _buildFeedbackList(), // Call the feedback list builder here
+                  ),
+                ));
+              },
             ),
           ],
         ),
@@ -261,7 +318,6 @@ class _AdminInterfaceState extends State<AdminInterface> {
                     ),
                   ),
                 ),
-                // ... more cards for other options
               ],
             ),
           ),
