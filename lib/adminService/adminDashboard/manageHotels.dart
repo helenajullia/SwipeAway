@@ -119,7 +119,8 @@ class _HotelServiceState extends State<HotelService> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Hotel', style: GoogleFonts.lobster()),
+        backgroundColor: Colors.black,
+        title: Text('Add Hotel', style: GoogleFonts.roboto()),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -128,7 +129,10 @@ class _HotelServiceState extends State<HotelService> {
             children: <Widget>[
               ElevatedButton(
                 onPressed: pickImages,
-                child: Text('Pick Image'),
+                child: Text('Pick Images'),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.black),
+                ),
               ),
               if (kIsWeb)
                 ..._webImages.map((image) => Image.memory(
@@ -175,6 +179,9 @@ class _HotelServiceState extends State<HotelService> {
               ElevatedButton(
                 onPressed: addHotel,
                 child: Text('Add Hotel'),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.black),
+                ),
               ),
             ],
           ),
