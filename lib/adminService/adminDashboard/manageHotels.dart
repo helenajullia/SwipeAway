@@ -52,6 +52,7 @@ class _HotelServiceState extends State<HotelService> {
     // Different upload logic for web and mobile
   }
   Future<void> pickImages() async {
+    await uploadImages();
     try {
       final List<XFile>? selectedImages = await _picker.pickMultiImage();
       if (selectedImages != null) {
@@ -71,6 +72,44 @@ class _HotelServiceState extends State<HotelService> {
       }
     } catch (e) {
       print('Error picking images: $e');
+    }
+  }
+
+
+
+  Future<void> uploadImages() async {
+    if (kIsWeb) {
+      await uploadWebImages();
+    } else {
+      await uploadMobileImages();
+    }
+  }
+
+  Future<void> uploadWebImages() async {
+    for (var image in _webImages) {
+      String fileName = 'your_unique_file_name_here'; // Generate a unique file name for each image
+      Reference storageRef = FirebaseStorage.instance.ref().child('path/to/store/' + fileName);
+      try {
+        await storageRef.putData(image); // Uploads the image data
+        String imageUrl = await storageRef.getDownloadURL(); // Retrieves the image URL
+        print('Image URL: $imageUrl');
+      } catch (e) {
+        print('Error uploading web image: $e');
+      }
+    }
+  }
+
+  Future<void> uploadMobileImages() async {
+    for (var image in _mobileImages) {
+      String fileName = 'your_unique_file_name_here'; // Generate a unique file name for each image
+      Reference storageRef = FirebaseStorage.instance.ref().child('path/to/store/' + fileName);
+      try {
+        await storageRef.putFile(image); // Uploads the image file
+        String imageUrl = await storageRef.getDownloadURL(); // Retrieves the image URL
+        print('Image URL: $imageUrl');
+      } catch (e) {
+        print('Error uploading mobile image: $e');
+      }
     }
   }
 
