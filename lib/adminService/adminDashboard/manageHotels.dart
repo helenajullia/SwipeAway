@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
+
 class HotelService extends StatefulWidget {
   @override
   _HotelServiceState createState() => _HotelServiceState();
@@ -21,8 +22,8 @@ class _HotelServiceState extends State<HotelService> {
   final TextEditingController _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
-  Uint8List? _webImage;
-  File? _mobileImage;
+  List<Uint8List> _webImages = [];
+  List<File> _mobileImages = [];
 
   Future<void> addHotel() async {
     final String name = _nameController.text;
@@ -37,7 +38,8 @@ class _HotelServiceState extends State<HotelService> {
       return;
     }
 
-    DocumentReference hotels = FirebaseFirestore.instance.collection('hotels').doc();
+    DocumentReference hotels = FirebaseFirestore.instance.collection('hotels')
+        .doc();
     await hotels.set({
       'name': name,
       'county': county,
@@ -48,63 +50,27 @@ class _HotelServiceState extends State<HotelService> {
     });
 
     // Different upload logic for web and mobile
-    if (kIsWeb) {
-      if (_webImage != null) {
-        try {
-          await FirebaseStorage.instance
-              .ref('gs://swipeaway-7195c.appspot.com/${hotels.id}')
-              .putData(_webImage!);
-
-          String downloadURL = await FirebaseStorage.instance
-              .ref('gs://swipeaway-7195c.appspot.com/${hotels.id}')
-              .getDownloadURL();
-
-          await hotels.update({
-            'imageURL': downloadURL,
-          });
-        } catch (e) {
-          print(e);
-        }
-      }
-    } else {
-      if (_mobileImage != null) {
-        try {
-          await FirebaseStorage.instance
-              .ref('gs://swipeaway-7195c.appspot.com/${hotels.id}')
-              .putFile(_mobileImage!);
-
-          String downloadURL = await FirebaseStorage.instance
-              .ref('gs://swipeaway-7195c.appspot.com/${hotels.id}')
-              .getDownloadURL();
-
-          await hotels.update({
-            'imageURL': downloadURL,
-          });
-        } catch (e) {
-          print(e);
-        }
-      }
-    }
   }
-
-  Future<void> pickImage() async {
+  Future<void> pickImages() async {
     try {
-      final XFile? selected = await _picker.pickImage(source: ImageSource.gallery);
-      if (selected != null) {
-        setState(() {
-          if (kIsWeb) {
-            selected.readAsBytes().then((value) {
-              _webImage = value; // For web, use Uint8List
-            });
-          } else {
-            _mobileImage = File(selected.path); // For mobile, use File
-          }
-        });
+      final List<XFile>? selectedImages = await _picker.pickMultiImage();
+      if (selectedImages != null) {
+        if (kIsWeb) {
+          // Wait for all async operations to complete and then update the state
+          List<Uint8List> loadedImages = await Future.wait(selectedImages.map((xFile) => xFile.readAsBytes()));
+          setState(() {
+            _webImages = loadedImages;
+          });
+        } else {
+          setState(() {
+            _mobileImages = selectedImages.map((xFile) => File(xFile.path)).toList();
+          });
+        }
       } else {
-        print('No image selected');
+        print('No images selected');
       }
     } catch (e) {
-      print('Error picking image: $e');
+      print('Error picking images: $e');
     }
   }
 
@@ -112,7 +78,8 @@ class _HotelServiceState extends State<HotelService> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Hotel', style: GoogleFonts.lobster()),
+        backgroundColor: Colors.black,
+        title: Text('Add Hotel', style: GoogleFonts.roboto()),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -120,23 +87,26 @@ class _HotelServiceState extends State<HotelService> {
           child: Column(
             children: <Widget>[
               ElevatedButton(
-                onPressed: pickImage,
-                child: Text('Pick Image'),
+                onPressed: pickImages,
+                child: Text('Pick Images'),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.black),
+                ),
               ),
-              if (kIsWeb && _webImage != null)
-                Image.memory(
-                  _webImage!,
+              if (kIsWeb)
+                ..._webImages.map((image) => Image.memory(
+                  image,
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
-                ),
-              if (!kIsWeb && _mobileImage != null)
-                Image.file(
-                  _mobileImage!,
+                )),
+              if (!kIsWeb)
+                ..._mobileImages.map((image) => Image.file(
+                  image,
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
-                ),
+                )),
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(labelText: 'Hotel Name'),
@@ -167,6 +137,9 @@ class _HotelServiceState extends State<HotelService> {
               ElevatedButton(
                 onPressed: addHotel,
                 child: Text('Add Hotel'),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.black),
+                ),
               ),
             ],
           ),
