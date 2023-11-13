@@ -65,6 +65,9 @@ class _HotelServiceState extends State<HotelService> {
     if (imageUrls.isNotEmpty) {
       await hotels.update({'imageURLs': imageUrls});
     }
+
+    _showDialog('Success', 'Hotel added successfully.');
+    Navigator.of(context).pop();
   }
 
   // Helper methods for image upload
@@ -115,6 +118,34 @@ class _HotelServiceState extends State<HotelService> {
       print('Error picking images: $e');
     }
   }
+
+  Future<void> _showDialog(String title, String content) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button to close dialog
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(content),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
