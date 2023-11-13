@@ -7,7 +7,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
-
 class HotelService extends StatefulWidget {
   @override
   _HotelServiceState createState() => _HotelServiceState();
@@ -38,8 +37,7 @@ class _HotelServiceState extends State<HotelService> {
       return;
     }
 
-    DocumentReference hotels = FirebaseFirestore.instance.collection('hotels')
-        .doc();
+    DocumentReference hotels = FirebaseFirestore.instance.collection('hotels').doc();
     await hotels.set({
       'name': name,
       'county': county,
@@ -50,19 +48,62 @@ class _HotelServiceState extends State<HotelService> {
     });
 
     // Different upload logic for web and mobile
+    List<String> imageUrls = [];
+    if (kIsWeb) {
+      for (var image in _webImages) {
+        var downloadURL = await uploadWebImage(image, hotels.id);
+        if (downloadURL != null) imageUrls.add(downloadURL);
+      }
+    } else {
+      for (var image in _mobileImages) {
+        var downloadURL = await uploadMobileImage(image, hotels.id);
+        if (downloadURL != null) imageUrls.add(downloadURL);
+      }
+    }
+
+    // Update Firestore document with image URLs
+    if (imageUrls.isNotEmpty) {
+      await hotels.update({'imageURLs': imageUrls});
+    }
   }
+
+  // Helper methods for image upload
+  Future<String?> uploadWebImage(Uint8List image, String hotelId) async {
+    String fileName = 'image_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    Reference storageRef = FirebaseStorage.instance.ref('gs://swipeaway-7195c.appspot.com/$hotelId/$fileName');
+    try {
+      await storageRef.putData(image, SettableMetadata(contentType: 'image/jpeg'));
+      return await storageRef.getDownloadURL();
+    } catch (e) {
+      print('Error uploading web image: $e');
+      return null;
+    }
+  }
+
+  Future<String?> uploadMobileImage(File image, String hotelId) async {
+    String fileName = 'image_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    Reference storageRef = FirebaseStorage.instance.ref('gs://swipeaway-7195c.appspot.com/$hotelId/$fileName');
+    try {
+      await storageRef.putFile(image, SettableMetadata(contentType: 'image/jpeg'));
+      return await storageRef.getDownloadURL();
+    } catch (e) {
+      print('Error uploading mobile image: $e');
+      return null;
+    }
+  }
+
   Future<void> pickImages() async {
-    await uploadImages();
     try {
       final List<XFile>? selectedImages = await _picker.pickMultiImage();
       if (selectedImages != null) {
         if (kIsWeb) {
-          // Wait for all async operations to complete and then update the state
+          // For web, read all images as bytes and add to _webImages
           List<Uint8List> loadedImages = await Future.wait(selectedImages.map((xFile) => xFile.readAsBytes()));
           setState(() {
             _webImages = loadedImages;
           });
         } else {
+          // For mobile, convert paths to File and add to _mobileImages
           setState(() {
             _mobileImages = selectedImages.map((xFile) => File(xFile.path)).toList();
           });
@@ -74,51 +115,11 @@ class _HotelServiceState extends State<HotelService> {
       print('Error picking images: $e');
     }
   }
-
-
-
-  Future<void> uploadImages() async {
-    if (kIsWeb) {
-      await uploadWebImages();
-    } else {
-      await uploadMobileImages();
-    }
-  }
-
-  Future<void> uploadWebImages() async {
-    for (var image in _webImages) {
-      String fileName = 'your_unique_file_name_here'; // Generate a unique file name for each image
-      Reference storageRef = FirebaseStorage.instance.ref().child('path/to/store/' + fileName);
-      try {
-        await storageRef.putData(image); // Uploads the image data
-        String imageUrl = await storageRef.getDownloadURL(); // Retrieves the image URL
-        print('Image URL: $imageUrl');
-      } catch (e) {
-        print('Error uploading web image: $e');
-      }
-    }
-  }
-
-  Future<void> uploadMobileImages() async {
-    for (var image in _mobileImages) {
-      String fileName = 'your_unique_file_name_here'; // Generate a unique file name for each image
-      Reference storageRef = FirebaseStorage.instance.ref().child('path/to/store/' + fileName);
-      try {
-        await storageRef.putFile(image); // Uploads the image file
-        String imageUrl = await storageRef.getDownloadURL(); // Retrieves the image URL
-        print('Image URL: $imageUrl');
-      } catch (e) {
-        print('Error uploading mobile image: $e');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text('Add Hotel', style: GoogleFonts.roboto()),
+        title: Text('Add Hotel', style: GoogleFonts.lobster()),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -127,10 +128,7 @@ class _HotelServiceState extends State<HotelService> {
             children: <Widget>[
               ElevatedButton(
                 onPressed: pickImages,
-                child: Text('Pick Images'),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.black),
-                ),
+                child: Text('Pick Image'),
               ),
               if (kIsWeb)
                 ..._webImages.map((image) => Image.memory(
@@ -139,6 +137,7 @@ class _HotelServiceState extends State<HotelService> {
                   height: 100,
                   fit: BoxFit.cover,
                 )),
+              // Displaying mobile images if not on web
               if (!kIsWeb)
                 ..._mobileImages.map((image) => Image.file(
                   image,
@@ -176,9 +175,6 @@ class _HotelServiceState extends State<HotelService> {
               ElevatedButton(
                 onPressed: addHotel,
                 child: Text('Add Hotel'),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.black),
-                ),
               ),
             ],
           ),
@@ -187,4 +183,3 @@ class _HotelServiceState extends State<HotelService> {
     );
   }
 }
-
