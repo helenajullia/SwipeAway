@@ -62,12 +62,22 @@ class _HotelServiceState extends State<HotelService> {
     }
 
     // Update Firestore document with image URLs
-    if (imageUrls.isNotEmpty) {
-      await hotels.update({'imageURLs': imageUrls});
+    try {
+      // Update Firestore document with image URLs
+      if (imageUrls.isNotEmpty) {
+        await hotels.update({'imageURLs': imageUrls});
+      }
+
+      // Call the showDialog function with 'await' to ensure it completes before navigating
+      await _showDialog('Success', 'Hotel added successfully.');
+
+      // After the dialog is closed, navigate back
+      Navigator.of(context).pop();
+    } catch (e) {
+      print('Error in addHotel: $e');
+      await _showDialog('Error', 'Failed to add hotel.'); // Show error dialog
     }
 
-    _showDialog('Success', 'Hotel added successfully.');
-    Navigator.of(context).pop();
   }
 
   // Helper methods for image upload
