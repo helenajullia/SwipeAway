@@ -149,7 +149,6 @@ class _AdminInterfaceState extends State<AdminInterface> {
                 Text('City: ${hotel.city}'),
                 Text('Single Rooms: ${hotel.singleRooms}'),
                 Text('Double Rooms: ${hotel.doubleRooms}'),
-                Text('Description: ${hotel.description}'),
                 // Add more details as needed
               ],
             ),
