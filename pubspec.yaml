@@ -22,6 +22,10 @@ dependencies:
   firebase_storage: ^11.5.0
   image_picker: ^1.0.4
 
+dependency_overrides:
+  flutter_tindercard:
+  card_swiper:
+
 flutter:
   uses-material-design: true
   assets:

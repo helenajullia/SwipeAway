@@ -1,13 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swipe_away/home/saved_page.dart';
+import '../adminService/HotelModel.dart';
+import '../adminService/adminDashboard/HotelCard.dart';
 import 'myAccount/myAccount_page.dart';
+import 'package:card_swiper/card_swiper.dart';
 
 class SearchPage extends StatefulWidget {
   @override
   _SearchPageState createState() => _SearchPageState();
 }
+
 
 class _SearchPageState extends State<SearchPage> {
   DateTime? checkInDate;
@@ -60,6 +65,66 @@ class _SearchPageState extends State<SearchPage> {
     'Vaslui',
     'Vrancea'
   ];
+
+  List<Hotel>? searchResults; // Add this line
+
+  void performSearch() async {
+    var results = await searchHotels();
+    setState(() {
+      searchResults = results;
+    });
+  }
+
+  Future<List<Hotel>> searchHotels() async {
+    // Fetch hotels from Firestore
+    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('hotels').get();
+
+    // Filter hotels based on search criteria
+    return snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>))
+        .where((hotel) =>
+    hotel.county == selectedCounty &&
+        hotel.singleRooms <= singleRoomCount &&
+        hotel.doubleRooms <= doubleRoomCount)
+        .toList();
+  }
+
+  Widget buildHotelCards(BuildContext context) {
+
+    if (searchResults == null) {
+      return Center(child: Text('Please perform a search'));
+    }
+
+    if (searchResults!.isEmpty) {
+      return Center(child: Text('No matching hotels found'));
+    }
+
+
+    return FutureBuilder<List<Hotel>>(
+      future: searchHotels(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          return Swiper(
+            itemCount: searchResults!.length,
+            itemBuilder: (BuildContext context, int index) {
+              return HotelCard(hotel: searchResults![index]);
+            },
+            // Implement swiper functionality as needed
+          );
+        } else {
+          return Text('No matching hotels found');
+        }
+      },
+    );
+  }
+
+  void saveHotel(Hotel hotel) {
+    // Logic to save the hotel details to Firestore or local storage
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,7 +168,7 @@ class _SearchPageState extends State<SearchPage> {
                 Spacer(),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {}, // Handle search
+                    onPressed: performSearch, // Updated line
                     child: Text('Search'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
