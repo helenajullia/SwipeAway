@@ -118,6 +118,9 @@ class _AdminInterfaceState extends State<AdminInterface> {
             itemBuilder: (context, index) {
               var hotel = snapshot.data![index];
               return ListTile(
+                leading: hotel.imageURLs.isNotEmpty
+                    ? Image.network(hotel.imageURLs.first, width: 100, height: 100, fit: BoxFit.cover)
+                    : SizedBox(width: 100, height: 100, child: Center(child: Icon(Icons.image_not_supported))),
                 title: Text(hotel.name),
                 subtitle: Text('${hotel.city}, ${hotel.county}'),
                 onTap: () {
@@ -213,70 +216,6 @@ class _AdminInterfaceState extends State<AdminInterface> {
     );
   }
 
-  Widget _buildHotelListForDeleting() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('hotels').snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        }
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Text('No hotels found');
-        }
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return CircularProgressIndicator();
-          default:
-            return ListView.builder(
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                var hotelDoc = snapshot.data!.docs[index];
-                var hotelData = hotelDoc.data() as Map<String, dynamic>; // Cast the data to a Map
-                Hotel hotel = Hotel.fromMap(hotelData);
-
-                // Debugging
-                print('Hotel Data: $hotelData');
-
-                return Dismissible(
-                  key: Key(hotelDoc.id),
-                  background: Container(color: Colors.red),
-                  onDismissed: (direction) async {
-                    await FirebaseFirestore.instance.collection('hotels').doc(hotelDoc.id).delete();
-
-                    // Show an AlertDialog
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("Hotel Deleted"),
-                          content: Text("${hotel.name} has been successfully deleted."),
-                          actions: <Widget>[
-                            TextButton(
-                              child: Text("OK"),
-                              onPressed: () {
-                                Navigator.of(context).pop(); // Dismiss the dialog
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: ListTile(
-                    title: Text(hotel.name),
-                    subtitle: Text('${hotel.county}, ${hotel.city}'),
-                    leading: (hotel.imageURLs.isNotEmpty)
-                        ? Image.network(hotel.imageURLs.first, width: 100, height: 100, fit: BoxFit.cover)
-                        : null,
-                    // Add other details you want to show in the list tile
-                  ),
-                );
-              },
-            );
-        }
-      },
-    );
-  }
 
   Widget _buildDismissibleHotelList() {
     return StreamBuilder<QuerySnapshot>(
