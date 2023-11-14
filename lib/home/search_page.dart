@@ -4,7 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swipe_away/home/saved_page.dart';
 import '../adminService/HotelModel.dart';
-import '../adminService/adminDashboard/HotelCard.dart';
+import '../adminService/HotelCard.dart';
+import 'SearchResultsPage.dart';
 import 'myAccount/myAccount_page.dart';
 import 'package:card_swiper/card_swiper.dart';
 
@@ -68,12 +69,21 @@ class _SearchPageState extends State<SearchPage> {
 
   List<Hotel>? searchResults; // Add this line
 
+
   void performSearch() async {
+    print("performSearch called");
     var results = await searchHotels();
-    setState(() {
-      searchResults = results;
-    });
+    print("Found ${results.length} hotels");
+
+    // Navigate to SearchResultsPage with the results
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => SearchResultsPage(searchResults: results),
+      ),
+    );
   }
+
+
 
   Future<List<Hotel>> searchHotels() async {
     // Fetch hotels from Firestore
@@ -82,10 +92,11 @@ class _SearchPageState extends State<SearchPage> {
     // Filter hotels based on search criteria
     return snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>))
         .where((hotel) =>
-    hotel.county == selectedCounty &&
+        hotel.county == selectedCounty &&
         hotel.singleRooms <= singleRoomCount &&
         hotel.doubleRooms <= doubleRoomCount)
         .toList();
+
   }
 
   Widget buildHotelCards(BuildContext context) {
@@ -169,6 +180,7 @@ class _SearchPageState extends State<SearchPage> {
                 Center(
                   child: ElevatedButton(
                     onPressed: performSearch, // Updated line
+
                     child: Text('Search'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
