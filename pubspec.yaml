@@ -28,7 +28,6 @@ flutter:
     - assets/icons/
     - assets/images/
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

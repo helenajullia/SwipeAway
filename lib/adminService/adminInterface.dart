@@ -7,11 +7,18 @@ import 'package:swipe_away/adminService/adminDashboard/manageHotels.dart';
 import 'package:swipe_away/adminService/adminDashboard/manageUsers.dart';
 
 import '../authentication/login.dart';
+import 'HotelModel.dart';
 
 class AdminInterface extends StatefulWidget {
   @override
   _AdminInterfaceState createState() => _AdminInterfaceState();
 }
+
+Future<List<Hotel>> fetchHotels() async {
+  QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('hotels').get();
+  return snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>)).toList();
+}
+
 
 class _AdminInterfaceState extends State<AdminInterface> {
 
@@ -99,6 +106,67 @@ class _AdminInterfaceState extends State<AdminInterface> {
       },
     );
   }
+
+  Widget _buildHotelList() {
+    return FutureBuilder<List<Hotel>>(
+      future: fetchHotels(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              var hotel = snapshot.data![index];
+              return ListTile(
+                title: Text(hotel.name),
+                subtitle: Text('${hotel.city}, ${hotel.county}'),
+                onTap: () {
+                  _showHotelDetails(context, hotel);
+                },
+              );
+            },
+          );
+        } else {
+          return Text('No hotels found');
+        }
+      },
+    );
+  }
+
+  void _showHotelDetails(BuildContext context, Hotel hotel) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(hotel.name),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('County: ${hotel.county}'),
+                Text('City: ${hotel.city}'),
+                Text('Single Rooms: ${hotel.singleRooms}'),
+                Text('Double Rooms: ${hotel.doubleRooms}'),
+                Text('Description: ${hotel.description}'),
+                // Add more details as needed
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Widget _buildFeedbackList() {
     return StreamBuilder<QuerySnapshot>(
@@ -272,7 +340,15 @@ class _AdminInterfaceState extends State<AdminInterface> {
                           leading: Icon(Icons.visibility, color: Colors.black),
                           title: Text('View Hotels', style: GoogleFonts.roboto()),
                           onTap: () {
-                            // Handle view users
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                appBar: AppBar(
+                                  title: Text('Hotels'),
+                                  backgroundColor: Colors.black,
+                                ),
+                                body: _buildHotelList(),
+                              ),
+                            ));
                           },
                         ),
                         ListTile(
