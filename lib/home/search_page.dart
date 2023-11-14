@@ -121,8 +121,19 @@ class _SearchPageState extends State<SearchPage> {
           return Swiper(
             itemCount: searchResults!.length,
             itemBuilder: (BuildContext context, int index) {
-              return HotelCard(hotel: searchResults![index]);
-            },
+                return HotelCard(
+                  hotel: searchResults![index],
+                  onSwipeLeft: () {
+                    // Logic for swiping left
+                   // saveHotel(searchResults![index]);
+                  },
+                  onSwipeRight: () {
+                    // Logic for swiping right
+                  },
+                );
+              },
+
+
             // Implement swiper functionality as needed
           );
         } else {
