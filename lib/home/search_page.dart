@@ -93,8 +93,8 @@ class _SearchPageState extends State<SearchPage> {
     return snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>))
         .where((hotel) =>
         hotel.county == selectedCounty &&
-        hotel.singleRooms <= singleRoomCount &&
-        hotel.doubleRooms <= doubleRoomCount)
+        hotel.singleRooms >= singleRoomCount &&
+        hotel.doubleRooms >= doubleRoomCount)
         .toList();
 
   }
