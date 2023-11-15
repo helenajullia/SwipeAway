@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -8,6 +10,8 @@ import 'package:swipe_away/adminService/adminDashboard/manageUsers.dart';
 
 import '../authentication/login.dart';
 import 'HotelModel.dart';
+import 'EventModel.dart';
+import 'adminDashboard/manageEvents.dart';
 
 class AdminInterface extends StatefulWidget {
   @override
@@ -17,6 +21,11 @@ class AdminInterface extends StatefulWidget {
 Future<List<Hotel>> fetchHotels() async {
   QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('hotels').get();
   return snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>)).toList();
+}
+
+Future<List<Event>> fetchEvents() async {
+  QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('events').get();
+  return snapshot.docs.map((doc) => Event.fromMap(doc.data() as Map<String, dynamic>)).toList();
 }
 
 
@@ -166,6 +175,68 @@ class _AdminInterfaceState extends State<AdminInterface> {
     );
   }
 
+  Widget _buildEventList() {
+    return FutureBuilder<List<Event>>(
+      future: fetchEvents(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              var event = snapshot.data![index];
+              return ListTile(
+                leading: event.imageURLs.isNotEmpty
+                    ? Image.network(event.imageURLs.first, width: 100, height: 100, fit: BoxFit.cover)
+                    : SizedBox(width: 100, height: 100, child: Center(child: Icon(Icons.image_not_supported))),
+                title: Text(event.name),
+                subtitle: Text('${event.city}, ${event.county}'),
+                onTap: () {
+                  _showEventDetails(context, event);
+                },
+              );
+            },
+          );
+        } else {
+          return Text('No events found');
+        }
+      },
+    );
+  }
+
+  void _showEventDetails(BuildContext context, Event event) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(event.name),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('County: ${event.county}'),
+                Text('City: ${event.city}'),
+                Text('Single Rooms: ${event.singleRooms}'),
+                Text('Double Rooms: ${event.doubleRooms}'),
+                // Add more details as needed
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Widget _buildFeedbackList() {
     return StreamBuilder<QuerySnapshot>(
@@ -267,7 +338,55 @@ class _AdminInterfaceState extends State<AdminInterface> {
     );
   }
 
+  Widget _buildDismissibleEventList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('events').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Text('No events found');
+        } else {
+          return ListView.builder(
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              var eventDoc = snapshot.data!.docs[index];
+              var eventData = eventDoc.data() as Map<String, dynamic>;
+              Event event = Event.fromMap(eventData);
 
+              return Dismissible(
+                key: Key(eventDoc.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 20.0),
+                    child: Icon(Icons.delete, color: Colors.white),
+                  ),
+                ),
+                onDismissed: (direction) async {
+                  await FirebaseFirestore.instance.collection('events').doc(eventDoc.id).delete();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("${event.name} has been deleted"),
+                    ),
+                  );
+                },
+                child: ListTile(
+                  title: Text(event.name),
+                  subtitle: Text('${event.county}, ${event.city}'),
+                  leading: (event.imageURLs.isNotEmpty)
+                      ? Image.network(event.imageURLs.first, width: 100, height: 100, fit: BoxFit.cover)
+                      : null,
+                ),
+              );
+            },
+          );
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -448,6 +567,54 @@ class _AdminInterfaceState extends State<AdminInterface> {
                           title: Text('Delete Bookings', style: GoogleFonts.roboto()),
                           onTap: () {
                             // Handle delete users
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    color: Colors.white,
+                    child: ExpansionTile(
+                      leading: Icon(Icons.event, color: Colors.black),
+                      title: Text('Manage Events', style: GoogleFonts.roboto()),
+                      children: <Widget>[
+                        ListTile(
+                          leading: Icon(Icons.visibility, color: Colors.black),
+                          title: Text('View Events', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                appBar: AppBar(
+                                  title: Text('Events'),
+                                  backgroundColor: Colors.black,
+                                ),
+                                body: _buildEventList(),
+                              ),
+                            ));
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.add, color: Colors.black),
+                          title: Text('Add Events', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => EventService(), // Replace ThemePage with your actual theme page widget
+                            ));
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.delete, color: Colors.black),
+                          title: Text('Delete Events', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return _buildDismissibleEventList();
+                              },
+                            );
                           },
                         ),
                       ],

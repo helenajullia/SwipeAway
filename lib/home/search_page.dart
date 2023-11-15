@@ -3,13 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swipe_away/home/saved_page.dart';
+import 'package:swipe_away/home/viewEventsPage.dart';
+import '../adminService/EventCard.dart';
+import '../adminService/EventModel.dart';
 import '../adminService/HotelModel.dart';
 import '../adminService/HotelCard.dart';
 import 'SearchResultsPage.dart';
 import 'myAccount/myAccount_page.dart';
 import 'package:card_swiper/card_swiper.dart';
 
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
 class SearchPage extends StatefulWidget {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -69,6 +75,7 @@ class _SearchPageState extends State<SearchPage> {
   ];
 
   List<Hotel>? searchResults; // Add this line
+  List<Event>? searchEventResults;
 
   void performSearch() async {
     print("performSearch called");
@@ -84,6 +91,46 @@ class _SearchPageState extends State<SearchPage> {
   }
 
 
+  void performEventSearch() async {
+    print("performEventSearch called");
+    try {
+      var results = await searchEvents();
+      print("Found ${results.length} events");
+
+      if (results.isNotEmpty) {
+        // Navighează la viewEventsPage cu rezultatele
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ViewEventsPage(searchEventResults: results),
+          ),
+        );
+      } else {
+        print('No events found');
+        // Afișează un mesaj utilizatorului că nu sunt evenimente
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No events found')),
+        );
+      }
+    } catch (e) {
+      print('Error while performing event search: $e');
+      // Afișează un mesaj de eroare utilizatorului
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching events')),
+      );
+    }
+  }
+
+  // Future<List<Event>> searchEvents() async {
+  //   try {
+  //     QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('events').get();
+  //     return snapshot.docs.map((doc) => Event.fromMap(doc.data() as Map<String, dynamic>)).toList();
+  //   } catch (e) {
+  //     print('Error fetching events: $e');
+  //     return []; // Return an empty list on error
+  //   }
+  // }
+
+
 
   Future<List<Hotel>> searchHotels() async {
     // Fetch hotels from Firestore
@@ -97,6 +144,23 @@ class _SearchPageState extends State<SearchPage> {
         hotel.doubleRooms >= doubleRoomCount)
         .toList();
 
+  }
+
+  Future<List<Event>> searchEvents() async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('events').get();
+
+      if (snapshot.docs.isEmpty) {
+        print('Collection is empty.');
+      } else {
+        print('Collection is not empty.');
+      }
+
+      return snapshot.docs.map((doc) => Event.fromMap(doc.data() as Map<String, dynamic>)).toList();
+    } catch (e) {
+      print('Error fetching events: $e');
+      return []; // Return an empty list on error
+    }
   }
 
   SwiperController swiperController = SwiperController();
@@ -136,44 +200,125 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  Widget buildEventCards(BuildContext context) {
+    // Check if searchEventResults is null or empty and handle accordingly
+    if (searchEventResults == null || searchEventResults!.isEmpty) {
+      // Display a message or an empty container when there are no events
+      return Center(child: Text('No events available'));
+    }
+    return Swiper(
+      controller: swiperController,
+      itemCount: searchEventResults!.length,
+      itemBuilder: (BuildContext context, int index) {
+        return EventCard(
+          event: searchEventResults![index],
+          onSwipeLeft: () {
+            // You may leave this empty if the swiper automatically handles swiping
+          },
+          onSwipeRight: () {
+            // You may leave this empty if the swiper automatically handles swiping
+          },
+        );
+      },
+      layout: SwiperLayout.TINDER,
+      itemWidth: MediaQuery.of(context).size.width,
+      itemHeight: MediaQuery.of(context).size.height,
+      loop: false,
+      onIndexChanged: (index) {
+        if (previousIndex >= 0 && previousIndex < searchEventResults!.length) {
+          saveEvent(searchEventResults![previousIndex]);
+
+          // Optional: Add additional logic to handle different swipe directions
+          // This can be implemented using additional state variables or methods
+        }
+
+        // Update the previous index for the next swipe
+        previousIndex = index;
+      },
+    );
+  }
 
 
   void saveHotel(Hotel hotel) {
     // Logic to save the hotel details to Firestore or local storage
   }
 
+  void saveEvent(Event event) {
+    // Logic to save the hotel details to Firestore or local storage
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/SearchPage.jpeg'),
-              fit: BoxFit.cover,
-              // Apply color filter here
-              colorFilter: ColorFilter.mode(
-                Colors.black.withOpacity(0.85), // 50% Opacity
-                BlendMode.dstATop, // This blend mode allows the image to show through the color
+      key: _scaffoldKey,
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.black,
+              ),
+              child: Text(
+                'Events',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontFamily: 'Roboto',
+                ),
               ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Text(
-                    "SwipeAway",
-                    style: GoogleFonts.robotoSerif(
-                      fontSize: 34,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black.withOpacity(0.85),
+            ListTile(
+              leading: Icon(Icons.event),
+              title: Text('View Events', style: GoogleFonts.roboto()),
+              onTap: () {
+                Navigator.of(context).pop(); // Închide sertarul
+                performEventSearch(); // Apelează metoda pentru căutarea evenimentelor
+              },
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/SearchPage.jpeg'),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      Colors.black.withOpacity(0.85), // Darken the image
+                      BlendMode.dstATop,
                     ),
                   ),
                 ),
+              ),
+              // Positioned IconButton that will open the drawer
+              Positioned(
+                top: 0,
+                left: 0,
+                child: IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Your existing widgets
+                    Center(
+                      child: Text(
+                        "SwipeAway",
+                        style: GoogleFonts.robotoSerif(
+                          fontSize: 34,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black.withOpacity(0.85),
+                        ),
+                      ),
+                    ),
                 const SizedBox(height: 40),
                 buildCountyDropdown(),
                 const SizedBox(height: 12),
@@ -198,7 +343,8 @@ class _SearchPageState extends State<SearchPage> {
               ],
             ),
           ),
-        ),
+        ]
+      ),
       ),
       bottomNavigationBar: buildBottomNavigationBar(),
     );
