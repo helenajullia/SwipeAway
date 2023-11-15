@@ -13,6 +13,7 @@ class HotelCard extends StatelessWidget {
     required this.onSwipeLeft,
     required this.onSwipeRight,
   });
+
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
@@ -30,41 +31,39 @@ class HotelCard extends StatelessWidget {
         margin: EdgeInsets.zero,
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              if (hotel.imageURLs.isNotEmpty)
-                Image.network(
-                  hotel.imageURLs.first,
-                  fit: BoxFit.cover,
-                  height: screenSize.height * 0.65,
-                  width: screenSize.width,
-                ),
-              SizedBox(height: 8.0),
-              Text(
-                hotel.name,
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 8.0),
-              Text("County: ${hotel.county}"),
-              Text("City: ${hotel.city}"),
-              Text("Single Rooms: ${hotel.singleRooms}"),
-              Text("Double Rooms: ${hotel.doubleRooms}"),
-              SizedBox(height: 8.0),
-              Expanded(
-                // Wrap the description in an Expanded widget
-                child: SingleChildScrollView(
-                  // Use a SingleChildScrollView to allow scrolling
-                  child: Text(
-                    hotel.description,
-                    style: TextStyle(fontSize: 16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                if (hotel.imageURLs.isNotEmpty)
+                  Container(
+                    height: screenSize.height * 0.65,
+                    width: screenSize.width,
+                    child: Image.network(
+                      hotel.imageURLs.first,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                SizedBox(height: 8.0),
+                Text(
+                  hotel.name,
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ],
+                SizedBox(height: 8.0),
+                Text("County: ${hotel.county}"),
+                Text("City: ${hotel.city}"),
+                Text("Single Rooms: ${hotel.singleRooms}"),
+                Text("Double Rooms: ${hotel.doubleRooms}"),
+                SizedBox(height: 8.0),
+                Text(
+                  hotel.description,
+                  style: TextStyle(fontSize: 16.0),
+                ),
+              ],
+            ),
           ),
         ),
       ),

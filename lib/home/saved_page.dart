@@ -38,25 +38,30 @@ class _SavedPageState extends State<SavedPage> {
       );
     }
   }
+
   Future<void> fetchSavedHotels() async {
-    String userId = FirebaseAuth.instance.currentUser!.uid; // Get the current user's UID
-    try {
-      var snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('savedHotels')
-          .get();
-      var fetchedHotels = snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>)).toList();
-      setState(() {
-        savedHotels = fetchedHotels;
-      });
-    } catch (e) {
-      print('Error fetching saved hotels: $e');
-      // Handle the error appropriately
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      try {
+        var snapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .collection('savedHotels')
+            .get();
+        var fetchedHotels = snapshot.docs
+            .map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>))
+            .toList();
+        setState(() {
+          savedHotels = fetchedHotels;
+        });
+      } catch (e) {
+        print('Error fetching saved hotels: $e');
+        // Handle the error appropriately, perhaps by showing a message to the user
+      }
+    } else {
+      // Handle the case where currentUser is null, maybe by redirecting to a login page or showing a message
     }
   }
-
-
 
   Future<bool> _onWillPop() async {
     setState(() {
@@ -85,15 +90,20 @@ class _SavedPageState extends State<SavedPage> {
           ),
         ),
         body: savedHotels.isEmpty
-            ? Center(child: CircularProgressIndicator()) // Show loading indicator while data is being fetched
+            ? Center(child: Text('No saved hotels found')) // Handle empty data
             : ListView.builder(
           itemCount: savedHotels.length,
           itemBuilder: (context, index) {
-            return HotelCard(
-              hotel: savedHotels[index],
-              onSwipeLeft: () {/* Logic if needed */},
-              onSwipeRight: () {/* Logic if needed */},
-            );
+            Hotel? hotel = savedHotels[index];
+            if (hotel != null) {
+              return HotelCard(
+                hotel: hotel,
+                onSwipeLeft: () {/* Logic if needed */},
+                onSwipeRight: () {/* Logic if needed */},
+              );
+            } else {
+              return Text("Hotel data is not available.");
+            }
           },
         ),
         bottomNavigationBar: BottomNavigationBar(
