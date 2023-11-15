@@ -61,6 +61,7 @@ class HotelCard extends StatelessWidget {
                 Text(
                   hotel.description,
                   style: TextStyle(fontSize: 16.0),
+                  maxLines: 3,
                 ),
               ],
             ),

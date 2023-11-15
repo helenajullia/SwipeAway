@@ -202,25 +202,7 @@ class _SearchPageState extends State<SearchPage> {
       bottomNavigationBar: buildBottomNavigationBar(),
     );
 
-    return Swiper(
-      controller: swiperController,
-      itemCount: searchResults!.length,
-      itemBuilder: (BuildContext context, int index) {
-        return HotelCard(
-          hotel: searchResults![index],
-          onSwipeLeft: () {
-            saveHotel(searchResults![index]);
-            swiperController.next();
-          },
-          onSwipeRight: () {
-            // Optionally add logic here
-            swiperController.next();
-          },
-          // ... other Swiper properties ...
-        );
-      },
-      // ... other Swiper properties ...
-    );
+
   }
   DropdownButtonHideUnderline buildCountyDropdown() {
     return DropdownButtonHideUnderline(

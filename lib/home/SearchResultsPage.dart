@@ -49,8 +49,8 @@ class SearchResultsPage extends StatelessWidget {
           return HotelCard(
             hotel: searchResults[index],
             // You don't necessarily need these if the Swiper handles the swiping
-             onSwipeLeft: () => saveHotel(searchResults[index]),
-             onSwipeRight: () => {},
+            onSwipeLeft: () => saveHotel(searchResults[index]),
+            onSwipeRight: () => {},
           );
         },
         onIndexChanged: (index) {
