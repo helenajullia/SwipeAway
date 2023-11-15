@@ -39,7 +39,7 @@ class _HotelCardState extends State<HotelCard> {
           children: <Widget>[
             _buildImageCarousel(screenSize),
             _buildHotelDetails(),
-            _buildPriceButton(),
+            _buildButtons(),
           ],
         ),
       ),
@@ -135,21 +135,30 @@ class _HotelCardState extends State<HotelCard> {
     );
   }
 
+  Widget _buildButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildPriceButton(),
+        _buildBookNowButton(),
+      ],
+    );
+  }
+
   Widget _buildPriceButton() {
     return Center( // Use Center to align the button to the middle
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            primary: Colors.black, // Background color
-            onPrimary: Colors.white, // Text color
+            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
             textStyle: GoogleFonts.roboto(fontSize: 14), // Font size and style
             padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 30.0), // Padding inside the button
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0), // Rounded corners
             ),
             side: BorderSide(color: Colors.white, width: 2), // Border width and color
-            minimumSize: Size(200, 40), // Set a fixed width for the button
+            minimumSize: Size(180, 40), // Set a fixed width for the button
           ),
           onPressed: _showPriceDialog,
           child: Text(
@@ -159,6 +168,35 @@ class _HotelCardState extends State<HotelCard> {
         ),
       ),
     );
+  }
+
+  Widget _buildBookNowButton() {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.only(right: 16.0, left: 8.0, top: 8.0, bottom: 8.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white, backgroundColor: Colors.black,
+            textStyle: GoogleFonts.roboto(fontSize: 14),
+            padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 30.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            side: BorderSide(color: Colors.white, width: 2),
+            minimumSize: Size(180, 40),
+          ),
+          onPressed: _handleBookNow,
+          child: Text(
+            'Book Now',
+            style: GoogleFonts.roboto(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleBookNow() {
+    // Implement the action for the "Book Now" button
   }
 
   void _showPriceDialog() {
