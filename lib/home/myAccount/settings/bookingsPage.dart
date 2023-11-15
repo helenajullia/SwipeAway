@@ -87,7 +87,9 @@ class _BookingsPageState extends State<BookingsPage> {
       itemCount: _bookings.length + 1,
       itemBuilder: (context, index) {
         if (index < _bookings.length) {
-          return _buildBookingCard(_bookings[index]);
+          return _bookings[index].data() != null
+              ? _buildBookingCard(_bookings[index])
+              : SizedBox.shrink(); // Or some other placeholder widget.
         } else if (_isLoadingMore) {
           return Center(child: CircularProgressIndicator());
         } else {
@@ -99,8 +101,8 @@ class _BookingsPageState extends State<BookingsPage> {
 
   Widget _buildBookingCard(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-    List<String> imageUrls = List<String>.from(
-        data['hotelImageURL'] as List<dynamic>);
+    // Check if the 'hotelImageURL' field exists and is a list. If not, provide an empty list.
+    List<String> imageUrls = data['hotelImageURL'] is List ? List<String>.from(data['hotelImageURL']) : [];
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
