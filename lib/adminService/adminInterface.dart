@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:swipe_away/adminService/adminDashboard/manageBookings.dart';
 import 'package:swipe_away/adminService/adminDashboard/manageHotels.dart';
 import 'package:swipe_away/adminService/adminDashboard/manageUsers.dart';
 
@@ -528,7 +529,8 @@ class _AdminInterfaceState extends State<AdminInterface> {
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => HotelService(), // Replace ThemePage with your actual theme page widget
-                            ));
+                            )
+                            );
                           },
                         ),
                         ListTile(
@@ -559,7 +561,10 @@ class _AdminInterfaceState extends State<AdminInterface> {
                           leading: Icon(Icons.visibility, color: Colors.black),
                           title: Text('View Bookings', style: GoogleFonts.roboto()),
                           onTap: () {
-                            // Handle view users
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ManageBookings(), // Replace ThemePage with your actual theme page widget
+                            )
+                            );
                           },
                         ),
                         ListTile(

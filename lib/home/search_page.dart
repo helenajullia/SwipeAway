@@ -12,7 +12,7 @@ import 'SearchResultsPage.dart';
 import 'myAccount/myAccount_page.dart';
 import 'package:card_swiper/card_swiper.dart';
 
-final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
 
 class SearchPage extends StatefulWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -249,8 +249,9 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<ScaffoldState> _scaffoldKey2 = GlobalKey<ScaffoldState>();
     return Scaffold(
-      key: _scaffoldKey,
+      key: _scaffoldKey2,
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
@@ -300,7 +301,7 @@ class _SearchPageState extends State<SearchPage> {
                 left: 0,
                 child: IconButton(
                   icon: Icon(Icons.menu),
-                  onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                  onPressed: () => _scaffoldKey2.currentState?.openDrawer(),
                 ),
               ),
               Padding(
