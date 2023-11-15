@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:swipe_away/home/myAccount/reviewsPage.dart';
+import 'package:swipe_away/home/myAccount/settings/bookingsPage.dart';
 import 'package:swipe_away/home/myAccount/settings/settingsPage.dart';
 import 'package:swipe_away/home/saved_page.dart';
 import 'package:swipe_away/home/search_page.dart';
@@ -65,6 +66,7 @@ class _MyAccountPageState extends State<MyAccountPage> {
       body: ListView(
         children: <Widget>[
           _buildAvatar(_userDetails),
+          _buildListItem(Icons.luggage_rounded, 'Bookings'),
           _buildListItem(Icons.rate_review_rounded, 'Reviews'),
           _buildListItem(Icons.settings, 'Settings'),
           _buildListItem(Icons.help, 'Help & feedback'),
@@ -168,8 +170,10 @@ class _MyAccountPageState extends State<MyAccountPage> {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => ReviewPage(),
             ));
-
-        // Add other cases for different list items if needed
+          case 'Bookings':
+            Navigator.of(context).push(MaterialPageRoute
+              (builder: (context) => BookingsPage()));
+            break;
         }
       },
     );

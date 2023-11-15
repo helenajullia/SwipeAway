@@ -226,7 +226,7 @@ class _HotelServiceState extends State<HotelService> {
                 keyboardType: TextInputType.number, // For numeric input
               ),
               TextField(
-                controller: _doubleRoomsController,
+                controller: _pricePerDoubleRoomsController,
                 decoration: InputDecoration(labelText: 'Price per Double Rooms'),
                 keyboardType: TextInputType.number, // For numeric input
               ),
