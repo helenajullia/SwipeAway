@@ -13,6 +13,7 @@ class SearchPage extends StatefulWidget {
   @override
   _SearchPageState createState() => _SearchPageState();
 }
+
 SwiperController swiperController = SwiperController();
 
 class _SearchPageState extends State<SearchPage> {

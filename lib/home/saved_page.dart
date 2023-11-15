@@ -97,23 +97,41 @@ class _SavedPageState extends State<SavedPage> {
         appBar: AppBar(
           title: Text('Saved', style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.black,
-          iconTheme: IconThemeData(color: Colors.black),
+          iconTheme: IconThemeData(color: Colors.white),
           actions: <Widget>[
             DropdownButton<String>(
               value: selectedCounty,
-              hint: Text("Filter by County"),
+              hint: Text(
+                "Filter by County",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Roboto',
+                ),
+              ),
+              dropdownColor: Colors.black, // Optional: if you want the dropdown menu to have a black background
+              iconEnabledColor: Colors.white, // Optional: if you want the dropdown arrow icon to be white
               items: counties.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  // Apply the white text color to each item in the dropdown
+                  child: Text(
+                    value,
+                    style: TextStyle(color: Colors.white), // Set the text color to white here
+                  ),
                 );
               }).toList(),
               onChanged: (newValue) {
                 setState(() {
                   selectedCounty = newValue;
+                  // Additional logic if needed
                 });
               },
-            ),
+              style: TextStyle(
+                color: Colors.white, // This ensures the selected item also uses white color
+                fontFamily: 'Roboto',
+              ),
+            )
+
           ],
         ),
         body: filteredHotels.isEmpty
