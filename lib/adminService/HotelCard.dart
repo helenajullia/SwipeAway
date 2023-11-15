@@ -13,7 +13,6 @@ class HotelCard extends StatelessWidget {
     required this.onSwipeLeft,
     required this.onSwipeRight,
   });
-
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
@@ -21,10 +20,8 @@ class HotelCard extends StatelessWidget {
     return GestureDetector(
       onHorizontalDragEnd: (DragEndDetails details) {
         if (details.velocity.pixelsPerSecond.dx > 0) {
-          // Swiped Right
           onSwipeRight();
         } else if (details.velocity.pixelsPerSecond.dx < 0) {
-          // Swiped Left
           onSwipeLeft();
         }
       },
@@ -57,12 +54,16 @@ class HotelCard extends StatelessWidget {
               Text("Single Rooms: ${hotel.singleRooms}"),
               Text("Double Rooms: ${hotel.doubleRooms}"),
               SizedBox(height: 8.0),
-              Text(
-                hotel.description,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                // Wrap the description in an Expanded widget
+                child: SingleChildScrollView(
+                  // Use a SingleChildScrollView to allow scrolling
+                  child: Text(
+                    hotel.description,
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
               ),
-              // Add other elements as needed
             ],
           ),
         ),

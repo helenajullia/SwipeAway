@@ -13,7 +13,7 @@ class SearchPage extends StatefulWidget {
   @override
   _SearchPageState createState() => _SearchPageState();
 }
-
+SwiperController swiperController = SwiperController();
 
 class _SearchPageState extends State<SearchPage> {
   DateTime? checkInDate;
@@ -69,7 +69,6 @@ class _SearchPageState extends State<SearchPage> {
 
   List<Hotel>? searchResults; // Add this line
 
-
   void performSearch() async {
     print("performSearch called");
     var results = await searchHotels();
@@ -99,49 +98,44 @@ class _SearchPageState extends State<SearchPage> {
 
   }
 
+  SwiperController swiperController = SwiperController();
+  int previousIndex = -1; // Initialize with an invalid index
+
+
   Widget buildHotelCards(BuildContext context) {
+    return Swiper(
+      controller: swiperController,
+      itemCount: searchResults!.length,
+      itemBuilder: (BuildContext context, int index) {
+        return HotelCard(
+          hotel: searchResults![index],
+          onSwipeLeft: () {
+            // You may leave this empty if the swiper automatically handles swiping
+          },
+          onSwipeRight: () {
+            // You may leave this empty if the swiper automatically handles swiping
+          },
+        );
+      },
+      layout: SwiperLayout.TINDER,
+      itemWidth: MediaQuery.of(context).size.width,
+      itemHeight: MediaQuery.of(context).size.height,
+      loop: false,
+      onIndexChanged: (index) {
+        if (previousIndex >= 0 && previousIndex < searchResults!.length) {
+           saveHotel(searchResults![previousIndex]);
 
-    if (searchResults == null) {
-      return Center(child: Text('Please perform a search'));
-    }
-
-    if (searchResults!.isEmpty) {
-      return Center(child: Text('No matching hotels found'));
-    }
-
-
-    return FutureBuilder<List<Hotel>>(
-      future: searchHotels(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          return Swiper(
-            itemCount: searchResults!.length,
-            itemBuilder: (BuildContext context, int index) {
-                return HotelCard(
-                  hotel: searchResults![index],
-                  onSwipeLeft: () {
-                    // Logic for swiping left
-                   // saveHotel(searchResults![index]);
-                  },
-                  onSwipeRight: () {
-                    // Logic for swiping right
-                  },
-                );
-              },
-
-
-            // Implement swiper functionality as needed
-          );
-        } else {
-          return Text('No matching hotels found');
+          // Optional: Add additional logic to handle different swipe directions
+          // This can be implemented using additional state variables or methods
         }
+
+        // Update the previous index for the next swipe
+        previousIndex = index;
       },
     );
   }
+
+
 
   void saveHotel(Hotel hotel) {
     // Logic to save the hotel details to Firestore or local storage
@@ -206,6 +200,26 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
       bottomNavigationBar: buildBottomNavigationBar(),
+    );
+
+    return Swiper(
+      controller: swiperController,
+      itemCount: searchResults!.length,
+      itemBuilder: (BuildContext context, int index) {
+        return HotelCard(
+          hotel: searchResults![index],
+          onSwipeLeft: () {
+            saveHotel(searchResults![index]);
+            swiperController.next();
+          },
+          onSwipeRight: () {
+            // Optionally add logic here
+            swiperController.next();
+          },
+          // ... other Swiper properties ...
+        );
+      },
+      // ... other Swiper properties ...
     );
   }
   DropdownButtonHideUnderline buildCountyDropdown() {
