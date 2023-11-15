@@ -44,18 +44,8 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
     FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
-        .collection('events')
-        .add({
-      'name': event.name,
-      'county': event.county,
-      'city': event.city,
-      'description': event.description,
-      'singleRooms': event.singleRooms,
-      'doubleRooms': event.doubleRooms,
-      'imageURLs': event.imageURLs,
-      'pricePerSingleRoomPerNight' : event.pricePerSingleRoomPerNight,
-      'pricePerDoubleRoomPerNight' : event.pricePerDoubleRoomPerNight,
-    });
+        .collection('savedEvents') // Modifică numele colecției la 'savedEvents'
+        .add(event.toMap()); // Adaugă aici metoda toMap dacă nu există deja
   }
 
   void _onSwipeUp(int index) {

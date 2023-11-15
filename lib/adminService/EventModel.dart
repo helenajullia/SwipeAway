@@ -21,6 +21,20 @@ class Event {
     required this.imageURLs,
   });
 
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'county': county,
+      'city': city,
+      'singleRooms': singleRooms,
+      'doubleRooms': doubleRooms,
+      'description': description,
+      'pricePerSingleRoomPerNight': pricePerSingleRoomPerNight,
+      'pricePerDoubleRoomPerNight': pricePerDoubleRoomPerNight,
+      'imageURLs': imageURLs,
+    };
+  }
+
   factory Event.fromMap(Map<String, dynamic> data) {
     return Event(
       name: data['name'],

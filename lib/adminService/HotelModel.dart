@@ -9,6 +9,20 @@ class Hotel {
   final int pricePerDoubleRoomPerNight;
   final List<String> imageURLs;
 
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'county': county,
+      'city': city,
+      'singleRooms': singleRooms,
+      'doubleRooms': doubleRooms,
+      'description': description,
+      'pricePerSingleRoomPerNight': pricePerSingleRoomPerNight,
+      'pricePerDoubleRoomPerNight': pricePerDoubleRoomPerNight,
+      'imageURLs': imageURLs,
+    };
+  }
+
   Hotel({
     required this.name,
     required this.county,
