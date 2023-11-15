@@ -29,7 +29,28 @@ class SearchResultsPage extends StatelessWidget {
       'imageURLs' : hotel.imageURLs,
     });
   }
-
+  void _onSwipedAway(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Save Hotel"),
+        content: Text("Do you want to save '${searchResults[index].name}' to your list?"),
+        actions: <Widget>[
+          TextButton(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: Text("Save"),
+            onPressed: () {
+              saveHotel(searchResults[index]);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,20 +68,13 @@ class SearchResultsPage extends StatelessWidget {
         itemHeight: MediaQuery.of(context).size.height,
         itemBuilder: (BuildContext context, int index) {
           return HotelCard(
-            hotel: searchResults[index],
-            // You don't necessarily need these if the Swiper handles the swiping
-            onSwipeLeft: () => saveHotel(searchResults[index]),
-            onSwipeRight: () => {},
+            hotel: searchResults[index], onSwipeLeft: (){}, onSwipeRight: (){},
+            // Remove onSwipeLeft and onSwipeRight if they're not needed
           );
         },
-        onIndexChanged: (index) {
-          // This is triggered when the card is swiped away
-          // Here, you could call saveHotel if you need to save the swiped away hotel
-        },
+        onIndexChanged: (index) => _onSwipedAway(context, index),
       )
-          : Center(
-        child: Text('No hotels found'),
-      ),
+          : Center(child: Text('No hotels found')),
     );
   }
 }

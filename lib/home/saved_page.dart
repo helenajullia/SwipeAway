@@ -48,21 +48,27 @@ class _SavedPageState extends State<SavedPage> {
             .doc(currentUser.uid)
             .collection('savedHotels')
             .get();
-        var fetchedHotels = snapshot.docs
-            .map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>))
-            .toList();
+
+        // Using a Map to ensure uniqueness of hotels based on a unique identifier
+        Map<String, Hotel> hotelsMap = {};
+
+        for (var doc in snapshot.docs) {
+          var hotel = Hotel.fromMap(doc.data() as Map<String, dynamic>);
+          // Assuming each hotel has a unique 'id' or use any unique property
+          hotelsMap[hotel.name] = hotel;
+        }
+
         setState(() {
-          savedHotels = fetchedHotels;
+          savedHotels = hotelsMap.values.toList();
         });
       } catch (e) {
         print('Error fetching saved hotels: $e');
-        // Handle the error appropriately, perhaps by showing a message to the user
+        // Handle the error appropriately
       }
     } else {
-      // Handle the case where currentUser is null, maybe by redirecting to a login page or showing a message
+      // Handle the case where currentUser is null
     }
   }
-
   Future<bool> _onWillPop() async {
     setState(() {
       _currentIndex = 0;
