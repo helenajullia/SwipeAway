@@ -18,6 +18,8 @@ class _HotelServiceState extends State<HotelService> {
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _singleRoomsController = TextEditingController();
   final TextEditingController _doubleRoomsController = TextEditingController();
+  final TextEditingController _pricePerSingleRoomsController = TextEditingController();
+  final TextEditingController _pricePerDoubleRoomsController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
@@ -30,6 +32,8 @@ class _HotelServiceState extends State<HotelService> {
     final String city = _cityController.text;
     final int? singleRooms = int.tryParse(_singleRoomsController.text);
     final int? doubleRooms = int.tryParse(_doubleRoomsController.text);
+    final int? pricePerSingleRooms = int.tryParse(_pricePerSingleRoomsController.text);
+    final int? pricePerDoubleRooms = int.tryParse(_pricePerDoubleRoomsController.text);
     final String description = _descriptionController.text;
 
     if (singleRooms == null || doubleRooms == null) {
@@ -45,6 +49,8 @@ class _HotelServiceState extends State<HotelService> {
       'singleRooms': singleRooms,
       'doubleRooms': doubleRooms,
       'description': description,
+      'pricePerDoubleRoomPerNight': pricePerDoubleRooms ?? 0, // Ensure this is an integer
+      'pricePerSingleRoomPerNight': pricePerSingleRooms ?? 0, // Ensure this is an integer
     });
 
     // Different upload logic for web and mobile
@@ -212,6 +218,16 @@ class _HotelServiceState extends State<HotelService> {
               TextField(
                 controller: _doubleRoomsController,
                 decoration: InputDecoration(labelText: 'Number of Double Rooms'),
+                keyboardType: TextInputType.number, // For numeric input
+              ),
+              TextField(
+                controller: _pricePerSingleRoomsController,
+                decoration: InputDecoration(labelText: 'Price per Single rooms'),
+                keyboardType: TextInputType.number, // For numeric input
+              ),
+              TextField(
+                controller: _doubleRoomsController,
+                decoration: InputDecoration(labelText: 'Price per Double Rooms'),
                 keyboardType: TextInputType.number, // For numeric input
               ),
               TextField(

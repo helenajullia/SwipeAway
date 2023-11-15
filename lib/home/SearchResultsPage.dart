@@ -33,6 +33,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       'singleRooms': hotel.singleRooms,
       'doubleRooms': hotel.doubleRooms,
       'imageURLs': hotel.imageURLs,
+      'pricePerSingleRoomPerNight' : hotel.pricePerSingleRoomPerNight,
+      'pricePerDoubleRoomPerNight' : hotel.pricePerDoubleRoomPerNight,
     });
   }
 
