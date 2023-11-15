@@ -34,7 +34,7 @@ class SearchResultsPage extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Save Hotel"),
-        content: Text("Do you want to save '${searchResults[index].name}' to your list?"),
+        content: Text("Do you want to save '${searchResults[index-1].name}' to your list?"),
         actions: <Widget>[
           TextButton(
             child: Text("Cancel"),
@@ -43,7 +43,7 @@ class SearchResultsPage extends StatelessWidget {
           TextButton(
             child: Text("Save"),
             onPressed: () {
-              saveHotel(searchResults[index]);
+              saveHotel(searchResults[index-1]);
               Navigator.of(context).pop();
             },
           ),

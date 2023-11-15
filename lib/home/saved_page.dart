@@ -14,6 +14,8 @@ class SavedPage extends StatefulWidget {
 class _SavedPageState extends State<SavedPage> {
   int _currentIndex = 1; // Assuming SavedPage is at index 1
   List<Hotel> savedHotels = [];
+  String? selectedCounty;
+
 
   @override
   void initState() {
@@ -82,6 +84,13 @@ class _SavedPageState extends State<SavedPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> counties = savedHotels.map((hotel) => hotel.county).toSet().toList();
+
+    // Filter the saved hotels by the selected county
+    List<Hotel> filteredHotels = selectedCounty != null
+        ? savedHotels.where((hotel) => hotel.county == selectedCounty).toList()
+        : savedHotels;
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -89,27 +98,34 @@ class _SavedPageState extends State<SavedPage> {
           title: Text('Saved', style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.black,
           iconTheme: IconThemeData(color: Colors.black),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            color: Colors.white,
-            onPressed: () => _onWillPop(),
-          ),
+          actions: <Widget>[
+            DropdownButton<String>(
+              value: selectedCounty,
+              hint: Text("Filter by County"),
+              items: counties.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  selectedCounty = newValue;
+                });
+              },
+            ),
+          ],
         ),
-        body: savedHotels.isEmpty
-            ? Center(child: Text('No saved hotels found')) // Handle empty data
+        body: filteredHotels.isEmpty
+            ? Center(child: Text('No saved hotels found for this county'))
             : ListView.builder(
-          itemCount: savedHotels.length,
+          itemCount: filteredHotels.length,
           itemBuilder: (context, index) {
-            Hotel? hotel = savedHotels[index];
-            if (hotel != null) {
-              return HotelCard(
-                hotel: hotel,
-                onSwipeLeft: () {/* Logic if needed */},
-                onSwipeRight: () {/* Logic if needed */},
-              );
-            } else {
-              return Text("Hotel data is not available.");
-            }
+            return HotelCard(
+              hotel: filteredHotels[index],
+              onSwipeLeft: () {/* Logic if needed */},
+              onSwipeRight: () {/* Logic if needed */},
+            );
           },
         ),
         bottomNavigationBar: BottomNavigationBar(
