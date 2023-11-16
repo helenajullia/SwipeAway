@@ -34,6 +34,17 @@ class _SavedPageState extends State<SavedPage> {
     fetchSavedHotelsAndEvents();
   }
 
+  Future<bool> _onWillPop() async {
+    setState(() {
+      _currentIndex = 0;
+    });
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SearchPage()),
+    );
+    return false; // Prevents the default back button behavior
+  }
+
   // This function is called inside initState to fetch saved hotels and events.
   void fetchSavedHotelsAndEvents() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
@@ -160,16 +171,20 @@ class _SavedPageState extends State<SavedPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
       appBar: AppBar(
         title: Text('Saved Items', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.black, // Stylish app bar color
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.sort),
-            onPressed: () {
-              // Implement sorting functionality
-            },
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ],
       ),
@@ -202,12 +217,14 @@ class _SavedPageState extends State<SavedPage> {
         //   onTap: _onItemTapped,
         // ),
       bottomNavigationBar: buildBottomNavigationBar(),
+      ),
     );
   }
 
-  BottomNavigationBar buildBottomNavigationBar() {
+  Widget buildBottomNavigationBar() {
     return BottomNavigationBar(
-      items: [
+      //backgroundColor: Colors.white,
+      items: const [
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
         BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Saved'),
         BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
@@ -215,32 +232,35 @@ class _SavedPageState extends State<SavedPage> {
       currentIndex: _currentIndex,
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey.shade600,
-      onTap: (index) {
-        setState(() => _currentIndex = index);
-        // Assuming index 0 is the search icon
-        switch (index) {
-          case 0: // Search Page
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SearchPage()),
-          );
-            break;
-          case 1: // Saved Page
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => SavedPage()),
-            // );
-            break;
-          case 2: // My Account Page
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MyAccountPage()),
-            );
-            break;
-        // Handle other indices, if necessary
-        }
-      },
+      onTap: onTabTapped,
     );
+  }
+
+  void onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    // Use a switch statement to handle the navigation
+    switch (index) {
+      case 0:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SearchPage()),
+        );
+        break;
+
+      case 1:
+        break;
+
+      case 2:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MyAccountPage()),
+        );
+        break;
+    // No need for a case 2 because we are already on the MyAccountPage
+    }
   }
 }
 

@@ -1,12 +1,9 @@
-
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:swipe_away/adminService/EventCard.dart';
-
 import '../adminService/EventModel.dart';
 import '../adminService/HotelCard.dart';
 import '../adminService/HotelModel.dart';
@@ -31,8 +28,10 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
   }
 
   Future<void> fetchEvents() async {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('events').get();
-    List<Event> events = snapshot.docs.map((doc) => Event.fromMap(doc.data() as Map<String, dynamic>)).toList();
+    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection(
+        'events').get();
+    List<Event> events = snapshot.docs.map((doc) =>
+        Event.fromMap(doc.data() as Map<String, dynamic>)).toList();
     setState(() {
       searchEventResults = events; // Update the state with the fetched events
     });
@@ -76,44 +75,50 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
         ],
       ),
     ).then((_) {
-      // This ensures that if the dialog is dismissed by tapping outside of it,
-      // it will still move to the next event.
       swiperController.next();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Event> events = widget.searchEventResults;
-    // Use searchEventResults from the state to build the Swiper
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Event Results'),
-        backgroundColor: Colors.black,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pop();
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text('Discover Events Of The Year'),
+          backgroundColor: Colors.black,
+        ),
+        body: searchEventResults != null && searchEventResults!.isNotEmpty
+            ? Swiper(
+          controller: swiperController,
+          itemCount: searchEventResults!.length,
+          layout: SwiperLayout.STACK,
+          itemWidth: MediaQuery.of(context).size.width,
+          itemHeight: MediaQuery.of(context).size.height,
+          itemBuilder: (BuildContext context, int index) {
+            return GestureDetector(
+              onVerticalDragEnd: (details) {
+                if (details.primaryVelocity! < 0) {
+                  _onSwipeUp(index);
+                }
+              },
+              child: EventCard(
+                event: searchEventResults![index],
+                onSwipeLeft: () {},
+                onSwipeRight: () {},
+              ),
+            );
+          },
+        )
+            : Center(child: Text('No events found')),
       ),
-      body: searchEventResults != null && searchEventResults!.isNotEmpty
-          ? Swiper(
-        controller: swiperController,
-        itemCount: searchEventResults!.length,
-        layout: SwiperLayout.STACK,
-        itemWidth: MediaQuery.of(context).size.width,
-        itemHeight: MediaQuery.of(context).size.height,
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onVerticalDragEnd: (details) {
-              if (details.primaryVelocity! < 0) {
-                _onSwipeUp(index);
-              }
-            },
-            child: EventCard(
-              event: searchEventResults![index],
-              onSwipeLeft: () {},
-              onSwipeRight: () {},
-            ),
-          );
-        },
-      )
-          : Center(child: Text('No events found')),
     );
   }
 }
