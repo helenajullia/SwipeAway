@@ -59,7 +59,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
       // Show a message if the hotel already exists
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('The event already exists.'),
+          content: Text('You have already saved this event.'),
         ),
       );
     }

@@ -101,24 +101,28 @@ class _SavedPageState extends State<SavedPage> {
   void saveEvent(Event event) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
-    // Check if the event already exists in the user's saved events
+    // Assuming 'eventId' is a unique identifier for each event
     var existingEvent = await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('savedEvents')
-        .where('name', isEqualTo: event.name)
+        .where('eventId', isEqualTo: event.name)
         .limit(1)
         .get();
 
     if (existingEvent.docs.isEmpty) {
-      // Event does not exist, so add it
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .collection('savedEvents')
           .add(event.toMap());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Event saved successfully")),
+      );
     } else {
-      // Event already exists, handle as needed (e.g., show a message)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Event already saved")),
+      );
     }
   }
 

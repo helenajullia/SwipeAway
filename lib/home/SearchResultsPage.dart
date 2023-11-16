@@ -40,7 +40,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       // Show a message if the hotel already exists
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('The hotel already exists.'),
+          content: Text('You have already saved this hotel.'),
         ),
       );
     }
