@@ -22,6 +22,8 @@ class _SavedPageState extends State<SavedPage> {
   List<Event> filteredEvents = [];
   String? selectedCounty;
   String eventSearchKeyword = '';
+  List<String> customListNames = []; // This will store the names of the custom lists
+
 
 
   TextEditingController countyController = TextEditingController();
@@ -34,6 +36,11 @@ class _SavedPageState extends State<SavedPage> {
     fetchSavedHotelsAndEvents();
   }
 
+  // Modify this method to be a synchronous method that just returns the list names
+  List<String> getListNames() {
+    return customListNames; // Assuming this is updated somewhere else
+  }
+
   Future<bool> _onWillPop() async {
     setState(() {
       _currentIndex = 0;
@@ -44,6 +51,8 @@ class _SavedPageState extends State<SavedPage> {
     );
     return false; // Prevents the default back button behavior
   }
+
+
 
   // This function is called inside initState to fetch saved hotels and events.
   void fetchSavedHotelsAndEvents() async {
@@ -73,12 +82,22 @@ class _SavedPageState extends State<SavedPage> {
           savedEvents = fetchedEvents;
           filteredEvents = List.from(savedEvents); // Show all initially
         });
+        var customListsSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .collection('customLists')
+            .get();
+
+        List<String> fetchedListNames = customListsSnapshot.docs
+            .map((doc) => doc.data()['name'] as String)
+            .toList();
+
+        setState(() {
+          customListNames = fetchedListNames;
+        });
       } catch (e) {
         print('Error fetching saved items: $e');
-        // Handle the error appropriately
       }
-    } else {
-      // Handle the case where currentUser is null
     }
   }
 
@@ -100,6 +119,15 @@ class _SavedPageState extends State<SavedPage> {
 
   void saveEvent(Event event) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
+    String? selectedListId = await _promptSelectList(context);
+
+    if (selectedListId==null) {
+      // User did not select a list or canceled the operation.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("No list selected. Hotel not saved.")),
+      );
+      return;
+    }
 
     // Assuming 'eventId' is a unique identifier for each event
     var existingEvent = await FirebaseFirestore.instance
@@ -128,37 +156,161 @@ class _SavedPageState extends State<SavedPage> {
 
   void saveHotel(Hotel hotel) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
+    String? selectedListId = await _promptSelectList(context);
+
+    if (selectedListId!=null && selectedListId.isNotEmpty) {
+      // User did not select a list or canceled the operation.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("No list selected. Hotel not saved.")),
+      );
+      return;
+    }
 
     var existingHotel = await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
-        .collection('savedHotels')
+        .collection('customLists')
+        .doc(selectedListId)
+        .collection('items')
         .where('name', isEqualTo: hotel.name)
         .limit(1)
         .get();
 
     if (existingHotel.docs.isEmpty) {
+      // If the hotel is not already in the list, save it.
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
-          .collection('savedHotels')
+          .collection('customLists')
+          .doc(selectedListId)
+          .collection('items')
           .add(hotel.toMap());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Hotel saved successfully")),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('The hotel already exists.'),
-        ),
+        SnackBar(content: Text("Hotel already exists in the selected list.")),
       );
     }
   }
 
+  void _createNewList(BuildContext context) {
+    TextEditingController listNameController = TextEditingController();
 
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Create New List'),
+          content: TextField(
+            controller: listNameController,
+            decoration: InputDecoration(hintText: "List Name"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Create'),
+              onPressed: () async {
+                String listName = listNameController.text;
+                String userId = FirebaseAuth.instance.currentUser!.uid;
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(userId)
+                    .collection('customLists')
+                    .add({'name': listName});
+
+                // Refetch the lists to update the UI
+                fetchSavedHotelsAndEvents();
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<String?> _promptSelectList(BuildContext context) async {
+    String? selectedListId;
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    // Fetch the list names from Firestore
+    QuerySnapshot listSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('customLists')
+        .get();
+
+    List<Map<String, String>> listNames = listSnapshot.docs
+        .map((doc) {
+      var data = doc.data() as Map<String, dynamic>?; // The data can be null, hence the '?'
+      // Use null-aware operators to handle possible null values
+      var name = data?['name'];
+      if (name is String) {
+        return {
+          'id': doc.id, // This is the document ID
+          'name': name,
+        };
+      }
+      return null; // Return null if the document's data is null or 'name' is not a string
+    })
+        .where((item) => item != null) // Remove nulls
+        .cast<Map<String, String>>() // Cast the non-null items to the correct type
+        .toList();
+
+
+    // Show the dialog
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select a List'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: listNames.map((item) {
+                return ListTile(
+                  title: Text(item['name'] as String),
+                  onTap: () {
+                    selectedListId = item['id']; // This should be the actual document ID
+                    Navigator.of(context).pop();
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Create New List'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog before opening a new one
+                _createNewList(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    return selectedListId; // Return the selected list ID
+  }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _createNewList(context),
+          child: Icon(Icons.add),
+
+        ),
       appBar: AppBar(
         title: Text('Saved Items', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
@@ -168,12 +320,12 @@ class _SavedPageState extends State<SavedPage> {
                 Navigator.of(context).pop();
                 onTabTapped(0);
           }),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.sort),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: Icon(Icons.sort),
+        //     onPressed: () => Navigator.of(context).pop(),
+        //   ),
+        // ],
       ),
       body: AnimationLimiter( // Wrap your ListView with AnimationLimiter
         child: ListView(
@@ -188,6 +340,23 @@ class _SavedPageState extends State<SavedPage> {
             children: [
               buildExpansionTile(' Hotels', filteredHotels),
               buildExpansionTile(' Events', filteredEvents),
+              ...getListNames().map((listName) {
+                // Use FutureBuilder to handle the async operation
+                return FutureBuilder<List<dynamic>>(
+                  future: fetchItemsForList(listName), // Your async operation to fetch items
+                  builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (snapshot.hasData) {
+                      return buildExpansionTile(listName, snapshot.data!);
+                    } else {
+                      return Text('No items found for this list');
+                    }
+                  },
+                );
+              }).toList(),
             ],
           ),
         ),
@@ -195,6 +364,14 @@ class _SavedPageState extends State<SavedPage> {
       bottomNavigationBar: buildBottomNavigationBar(),
       ),
     );
+  }
+
+  Future<List<dynamic>> fetchItemsForList(String listName) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    // Fetch the items for the given list from Firestore
+    // ... Firestore fetch logic ...
+    // For demonstration, let's return an empty list
+    return [];
   }
 
   Widget buildBottomNavigationBar() {
@@ -240,7 +417,22 @@ class _SavedPageState extends State<SavedPage> {
   }
 }
 
+Future<List<dynamic>> fetchItemsForList(String listName) async {
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  // Fetch the items for the given list from Firestore
+  QuerySnapshot snapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection('customLists')
+      .doc(listName) // You need to have the listId to fetch the correct document
+      .collection('items')
+      .get();
 
+  // Map the documents to your data models, e.g., Hotel or Event
+  List<dynamic> items = snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>)).toList();
+
+  return items;
+}
 
 Widget buildExpansionTile(String title, List<dynamic> items) {
   return ExpansionTile(
