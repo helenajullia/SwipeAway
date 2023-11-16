@@ -21,8 +21,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
   List<Hotel> hotelsInList = [];
 
-  // Method to save the hotel to Firestore
-  // Method to save the hotel to Firestore within a specific list
   void saveHotel(Hotel hotel, String listId) async {
 
     var hotelCollection = FirebaseFirestore.instance

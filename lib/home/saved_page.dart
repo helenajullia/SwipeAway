@@ -8,6 +8,7 @@ import '../adminService/HotelCard.dart';
 import '../adminService/HotelModel.dart';
 import 'search_page.dart';
 import 'myAccount/myAccount_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SavedPage extends StatefulWidget {
   @override
@@ -15,16 +16,16 @@ class SavedPage extends StatefulWidget {
 }
 
 class _SavedPageState extends State<SavedPage> {
-  int _currentIndex = 1; // Assuming SavedPage is at index 1
+  int _currentIndex = 1;
   List<Hotel> savedHotels = [];
   List<Event> savedEvents = [];
   List<Hotel> filteredHotels = [];
   List<Event> filteredEvents = [];
   String? selectedCounty;
   String eventSearchKeyword = '';
-  List<String> customListNames = []; // This will store the names of the custom lists
-
+  List<String> customListNames = [];
   Map<String, String> listNameToIdMap = {};
+  bool isLoading = true; // Add this line
 
   TextEditingController countyController = TextEditingController();
   TextEditingController eventSearchController = TextEditingController();
@@ -32,13 +33,15 @@ class _SavedPageState extends State<SavedPage> {
   @override
   void initState() {
     super.initState();
-    // Immediately fetch all saved hotels and events on init.
     fetchSavedHotelsAndEvents();
   }
 
-  // Modify this method to be a synchronous method that just returns the list names
   List<String> getListNames() {
-    return customListNames; // Assuming this is updated somewhere else
+    return customListNames;
+  }
+
+  String? getListIdByName(String listName) {
+    return listNameToIdMap[listName];
   }
 
   Future<bool> _onWillPop() async {
@@ -49,56 +52,7 @@ class _SavedPageState extends State<SavedPage> {
       context,
       MaterialPageRoute(builder: (context) => SearchPage()),
     );
-    return false; // Prevents the default back button behavior
-  }
-
-
-
-  // This function is called inside initState to fetch saved hotels and events.
-  void fetchSavedHotelsAndEvents() async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      try {
-        // Fetch saved hotels
-        var hotelSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .collection('savedHotels')
-            .get();
-        var fetchedHotels = hotelSnapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>)).toList();
-
-        // Fetch saved events
-        var eventSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .collection('savedEvents')
-            .get();
-        var fetchedEvents = eventSnapshot.docs.map((doc) => Event.fromMap(doc.data() as Map<String, dynamic>)).toList();
-
-        // Update the state with fetched hotels and events.
-        setState(() {
-          savedHotels = fetchedHotels;
-          filteredHotels = List.from(savedHotels); // Show all initially
-          savedEvents = fetchedEvents;
-          filteredEvents = List.from(savedEvents); // Show all initially
-        });
-        var customListsSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .collection('customLists')
-            .get();
-
-        customListNames.clear();
-        listNameToIdMap.clear();
-        for (var doc in customListsSnapshot.docs) {
-          String listName = doc.data()['name'] as String;
-          customListNames.add(listName);
-          listNameToIdMap[listName] = doc.id; // Store the list name to ID mapping
-        }
-      } catch (e) {
-        print('Error fetching saved items: $e');
-      }
-    }
+    return false;
   }
 
   void applyHotelFilter() {
@@ -122,14 +76,12 @@ class _SavedPageState extends State<SavedPage> {
     String? selectedListId = await _promptSelectList(context);
 
     if (selectedListId==null) {
-      // User did not select a list or canceled the operation.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("No list selected. Hotel not saved.")),
       );
       return;
     }
 
-    // Assuming 'eventId' is a unique identifier for each event
     var existingEvent = await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -301,6 +253,55 @@ class _SavedPageState extends State<SavedPage> {
     return selectedListId; // Return the selected list ID
   }
 
+  void fetchSavedHotelsAndEvents() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      try {
+        var hotelSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .collection('savedHotels')
+            .get();
+        var fetchedHotels = hotelSnapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>)).toList();
+
+        var eventSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .collection('savedEvents')
+            .get();
+        var fetchedEvents = eventSnapshot.docs.map((doc) => Event.fromMap(doc.data() as Map<String, dynamic>)).toList();
+
+        setState(() {
+          savedHotels = fetchedHotels;
+          filteredHotels = List.from(savedHotels);
+          savedEvents = fetchedEvents;
+          filteredEvents = List.from(savedEvents);
+        });
+
+        var customListsSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .collection('customLists')
+            .get();
+
+        customListNames.clear();
+        listNameToIdMap.clear();
+
+        for (var doc in customListsSnapshot.docs) {
+          String listName = doc.data()['name'] as String;
+          customListNames.add(listName);
+          listNameToIdMap[listName] = doc.id; // Store the list name to ID mapping
+        }
+        isLoading = false; // Set isLoading to false after data is fetched
+      } catch (e) {
+        print('Error fetching saved items: $e');
+        setState(() {
+          isLoading = false; // Set isLoading to false even if there's an error
+        });
+      }
+    }
+  }
+
   Future<List<Hotel>> fetchHotelsFromList(String listId) async {
     try {
       // Ensure the user ID is valid.
@@ -336,8 +337,6 @@ class _SavedPageState extends State<SavedPage> {
       title: Text(title, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
       backgroundColor: Colors.white12, // Add a slight white overlay to the ExpansionTile
       children: [
-         // buildExpansionTile(' Hotels', filteredHotels),
-         // buildExpansionTile(' Events', filteredEvents),
         FutureBuilder<List<Hotel>>(
           future: fetchHotelsFromList(listId), // Fetch the hotels from the given list ID
           builder: (BuildContext context, AsyncSnapshot<List<Hotel>> snapshot) {
@@ -363,70 +362,86 @@ class _SavedPageState extends State<SavedPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Saved Items'),
-        backgroundColor: Colors.black,
-      ),
-      body: AnimationLimiter(
-        child: ListView(
-          children: AnimationConfiguration.toStaggeredList(
-            duration: const Duration(milliseconds: 375),
-            childAnimationBuilder: (widget) => SlideAnimation(
-              horizontalOffset: 50.0,
-              child: FadeInAnimation(
-                child: widget,
-              ),
-            ),
-            children: [
-              // Tile for Saved Hotels
-              buildExpansionTile('Hotels', filteredHotels),
-
-              // Tile for Saved Events
-              buildExpansionTile('Events', filteredEvents),
-
-              // Tiles for each custom list
-              ...customListNames.map((listName) {
-                String? listId = getListIdByName(listName);
-                if (listId != null) {
-                  return buildExpansionTileList(listName, listId);
-                } else {
-                  return ListTile(
-                    title: Text('Error: List ID not found for $listName'),
-                  );
-                }
-              }).toList(),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _createNewList(context),
-        child: Icon(Icons.add, color: Colors.white), // Set the color of the icon here
-        backgroundColor: Colors.black,
-      ),
-      bottomNavigationBar: buildBottomNavigationBar(),
+  Widget buildExpansionTile(String title, List<dynamic> items) {
+    return ExpansionTile(
+      title: Text(title, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+      backgroundColor: Colors.white12, // Add a slight white overlay to the ExpansionTile
+      children: items.map((item) => item is Hotel
+          ? HotelCard(hotel: item, onSwipeLeft: () {}, onSwipeRight: () {})
+          : EventCard(event: item, onSwipeLeft: () {}, onSwipeRight: () {})
+      ).toList(),
     );
   }
 
-  String? getListIdByName(String listName) {
-    // Return the list ID for the given list name
-    return listNameToIdMap[listName];
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      // Show loading indicator while data is being fetched
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Loading...'),
+          backgroundColor: Colors.black,
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Saved Items', style: GoogleFonts.roboto()),
+          backgroundColor: Colors.black,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => _onWillPop(),
+          ),
+          elevation: 0,
+        ),
+        body: AnimationLimiter(
+          child: ListView(
+            children: AnimationConfiguration.toStaggeredList(
+              duration: const Duration(milliseconds: 375),
+              childAnimationBuilder: (widget) =>
+                  SlideAnimation(
+                    horizontalOffset: 50.0,
+                    child: FadeInAnimation(
+                      child: widget,
+                    ),
+                  ),
+              children: [
+                buildExpansionTile('Hotels', filteredHotels),
+
+                buildExpansionTile('Events', filteredEvents),
+
+                ...customListNames.map((listName) {
+                  String? listId = getListIdByName(listName);
+                  if (listId != null) {
+                    return buildExpansionTileList(listName, listId);
+                  } else {
+                    return ListTile(
+                      title: Text('Error: List ID not found for $listName'),
+                    );
+                  }
+                }).toList(),
+              ],
+            ),
+          ),
+        ),
+
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _createNewList(context),
+          child: Icon(Icons.add, color: Colors.white),
+          // Set the color of the icon here
+          backgroundColor: Colors.black,
+        ),
+        bottomNavigationBar: buildBottomNavigationBar(),
+      );
+    }
   }
 
-  Future<List<dynamic>> fetchItemsForList(String listName) async {
-    String userId = FirebaseAuth.instance.currentUser!.uid;
-    // Fetch the items for the given list from Firestore
-    // ... Firestore fetch logic ...
-    // For demonstration, let's return an empty list
-    return [];
-  }
+
 
   Widget buildBottomNavigationBar() {
     return BottomNavigationBar(
-      //backgroundColor: Colors.white,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
         BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Saved'),
@@ -444,7 +459,6 @@ class _SavedPageState extends State<SavedPage> {
       _currentIndex = index;
     });
 
-    // Use a switch statement to handle the navigation
     switch (index) {
       case 0:
         Navigator.pushReplacement(
@@ -452,45 +466,15 @@ class _SavedPageState extends State<SavedPage> {
           MaterialPageRoute(builder: (context) => SearchPage()),
         );
         break;
-
       case 1:
         break;
-
       case 2:
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MyAccountPage()),
         );
         break;
-    // No need for a case 2 because we are already on the MyAccountPage
     }
   }
 }
 
-Future<List<dynamic>> fetchItemsForList(String listName) async {
-  String userId = FirebaseAuth.instance.currentUser!.uid;
-  // Fetch the items for the given list from Firestore
-  QuerySnapshot snapshot = await FirebaseFirestore.instance
-      .collection('users')
-      .doc(userId)
-      .collection('customLists')
-      .doc(listName) // You need to have the listId to fetch the correct document
-      .collection('items')
-      .get();
-
-  // Map the documents to your data models, e.g., Hotel or Event
-  List<dynamic> items = snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>)).toList();
-
-  return items;
-}
-
-Widget buildExpansionTile(String title, List<dynamic> items) {
-  return ExpansionTile(
-    title: Text(title, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
-    backgroundColor: Colors.white12, // Add a slight white overlay to the ExpansionTile
-    children: items.map((item) => item is Hotel
-        ? HotelCard(hotel: item, onSwipeLeft: () {}, onSwipeRight: () {})
-        : EventCard(event: item, onSwipeLeft: () {}, onSwipeRight: () {})
-    ).toList(),
-  );
-}
