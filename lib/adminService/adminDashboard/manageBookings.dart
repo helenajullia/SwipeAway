@@ -19,10 +19,11 @@ class _ManageBookingsState extends State<ManageBookings> {
   }
 
   Future<void> updateBookingStatus(String email, String docId, String newStatus) async {
-    if (email == 'Unknown') {
-      print('Invalid email address, cannot update booking status.');
+    if (email == null || email.isEmpty || email == 'Unknown' || !isValidEmail(email)) {
+      print('Invalid email address or unknown email, cannot update booking status.');
       return;
     }
+
     try {
       final docRef = FirebaseFirestore.instance
           .collection('users')
@@ -34,6 +35,12 @@ class _ManageBookingsState extends State<ManageBookings> {
     } catch (e) {
       print('An error occurred while updating booking status: $e');
     }
+  }
+
+// Function to check if an email address is valid
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
+    return emailRegex.hasMatch(email);
   }
 
 

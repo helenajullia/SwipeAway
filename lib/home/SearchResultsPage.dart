@@ -24,6 +24,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   // Method to save the hotel to Firestore
   // Method to save the hotel to Firestore within a specific list
   void saveHotel(Hotel hotel, String listId) async {
+
     var hotelCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -49,6 +50,21 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
     }
   }
 
+  Future<List<dynamic>> fetchItemsForList(String listId) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('customLists')
+        .doc(listId) // Use listId instead of listName
+        .collection('items')
+        .get();
+
+    // Map the documents to your data models, e.g., Hotel or Event
+    List<dynamic> items = snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>)).toList();
+
+    return items;
+  }
 
 // Function to fetch hotels from a list
   Future<List<Hotel>> fetchHotelsFromList(String listId) async {
