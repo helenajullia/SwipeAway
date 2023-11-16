@@ -18,31 +18,31 @@ class _ManageBookingsState extends State<ManageBookings> {
     fetchAllBookings();
   }
 
-  Future<void> updateBookingStatus(String email, String docId, String newStatus) async {
-    if (email == null || email.isEmpty || email == 'Unknown' || !isValidEmail(email)) {
-      print('Invalid email address or unknown email, cannot update booking status.');
-      return;
-    }
 
-    try {
-      final docRef = FirebaseFirestore.instance
+  Future<void> updateBookingStatusForAllUsers(String bookingId, String newStatus) async {
+    QuerySnapshot usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
+
+    for (var userDoc in usersSnapshot.docs) {
+      String email = userDoc.id;
+      QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(email)
           .collection('bookings')
-          .doc(docId);
+          .where(FieldPath.documentId, isEqualTo: bookingId)
+          .get();
 
-      await docRef.update({'status': newStatus});
-    } catch (e) {
-      print('An error occurred while updating booking status: $e');
+      for (var bookingDoc in bookingsSnapshot.docs) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(email)
+            .collection('bookings')
+            .doc(bookingId)
+            .update({'status': newStatus})
+            .then((_) => print("Status updated for booking $bookingId of user $email"))
+            .catchError((error) => print("Failed to update booking: $error"));
+      }
     }
   }
-
-// Function to check if an email address is valid
-  bool isValidEmail(String email) {
-    final emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
-    return emailRegex.hasMatch(email);
-  }
-
 
 
   fetchAllBookings() async {
@@ -107,12 +107,17 @@ class _ManageBookingsState extends State<ManageBookings> {
                         .toList(),
                     onChanged: (String? newValue) {
                       if (newValue != null) {
-                        setState(() {
-                          booking.status = newValue;
+                        updateBookingStatusForAllUsers(booking.docId, newValue).then((_) {
+                          setState(() {
+                            booking.status = newValue;
+                          });
+                        }).catchError((error) {
+                          // Handle any errors here
+                          print("Error updating status: $error");
                         });
-                        updateBookingStatus(booking.email, booking.docId, newValue); // Use the correct identifiers
                       }
                     },
+
                     hint: Text('Select Status'),
 
           ),
