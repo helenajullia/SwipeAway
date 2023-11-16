@@ -24,7 +24,7 @@ class _SavedPageState extends State<SavedPage> {
   String eventSearchKeyword = '';
   List<String> customListNames = []; // This will store the names of the custom lists
 
-
+  Map<String, String> listNameToIdMap = {};
 
   TextEditingController countyController = TextEditingController();
   TextEditingController eventSearchController = TextEditingController();
@@ -88,13 +88,13 @@ class _SavedPageState extends State<SavedPage> {
             .collection('customLists')
             .get();
 
-        List<String> fetchedListNames = customListsSnapshot.docs
-            .map((doc) => doc.data()['name'] as String)
-            .toList();
-
-        setState(() {
-          customListNames = fetchedListNames;
-        });
+        customListNames.clear();
+        listNameToIdMap.clear();
+        for (var doc in customListsSnapshot.docs) {
+          String listName = doc.data()['name'] as String;
+          customListNames.add(listName);
+          listNameToIdMap[listName] = doc.id; // Store the list name to ID mapping
+        }
       } catch (e) {
         print('Error fetching saved items: $e');
       }
@@ -301,35 +301,78 @@ class _SavedPageState extends State<SavedPage> {
     return selectedListId; // Return the selected list ID
   }
 
+  Future<List<Hotel>> fetchHotelsFromList(String listId) async {
+    try {
+      // Ensure the user ID is valid.
+      String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+      if (userId.isEmpty) {
+        throw Exception("User not logged in");
+      }
+
+      // Fetch the hotel data from the specified list.
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('customLists')
+          .doc(listId)
+          .collection('items')
+          .get();
+
+      // Convert the query snapshot into a list of Hotels.
+      List<Hotel> hotels = snapshot.docs
+          .map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      return hotels;
+    } catch (e) {
+      // Handle any errors that occur during the fetch operation.
+      print(e); // Consider logging the error or using a more sophisticated error handling strategy.
+      return []; // Return an empty list on error.
+    }
+  }
+
+  Widget buildExpansionTileList(String title, String listId) {
+    return ExpansionTile(
+      title: Text(title, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+      backgroundColor: Colors.white12, // Add a slight white overlay to the ExpansionTile
+      children: [
+         // buildExpansionTile(' Hotels', filteredHotels),
+         // buildExpansionTile(' Events', filteredEvents),
+        FutureBuilder<List<Hotel>>(
+          future: fetchHotelsFromList(listId), // Fetch the hotels from the given list ID
+          builder: (BuildContext context, AsyncSnapshot<List<Hotel>> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (snapshot.hasData) {
+              List<Hotel> hotels = snapshot.data!;
+              return Column(
+                children: hotels.map((hotel) => HotelCard(
+                  hotel: hotel,
+                  onSwipeLeft: () {}, // Implement swipe left action if needed
+                  onSwipeRight: () {}, // Implement swipe right action if needed
+                )).toList(),
+              );
+            } else {
+              return Center(child: Text('No hotels found in this list'));
+            }
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _createNewList(context),
-          child: Icon(Icons.add),
-
-        ),
+    return Scaffold(
       appBar: AppBar(
-        title: Text('Saved Items', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('Saved Items'),
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-                Navigator.of(context).pop();
-                onTabTapped(0);
-          }),
-        // actions: [
-        //   IconButton(
-        //     icon: Icon(Icons.sort),
-        //     onPressed: () => Navigator.of(context).pop(),
-        //   ),
-        // ],
       ),
-      body: AnimationLimiter( // Wrap your ListView with AnimationLimiter
+      body: AnimationLimiter(
         child: ListView(
-          children: AnimationConfiguration.toStaggeredList( // Add animation to your list items
+          children: AnimationConfiguration.toStaggeredList(
             duration: const Duration(milliseconds: 375),
             childAnimationBuilder: (widget) => SlideAnimation(
               horizontalOffset: 50.0,
@@ -338,32 +381,39 @@ class _SavedPageState extends State<SavedPage> {
               ),
             ),
             children: [
-              buildExpansionTile(' Hotels', filteredHotels),
-              buildExpansionTile(' Events', filteredEvents),
-              ...getListNames().map((listName) {
-                // Use FutureBuilder to handle the async operation
-                return FutureBuilder<List<dynamic>>(
-                  future: fetchItemsForList(listName), // Your async operation to fetch items
-                  builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else if (snapshot.hasData) {
-                      return buildExpansionTile(listName, snapshot.data!);
-                    } else {
-                      return Text('No items found for this list');
-                    }
-                  },
-                );
+              // Tile for Saved Hotels
+              buildExpansionTile('Hotels', filteredHotels),
+
+              // Tile for Saved Events
+              buildExpansionTile('Events', filteredEvents),
+
+              // Tiles for each custom list
+              ...customListNames.map((listName) {
+                String? listId = getListIdByName(listName);
+                if (listId != null) {
+                  return buildExpansionTileList(listName, listId);
+                } else {
+                  return ListTile(
+                    title: Text('Error: List ID not found for $listName'),
+                  );
+                }
               }).toList(),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: buildBottomNavigationBar(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _createNewList(context),
+        child: Icon(Icons.add, color: Colors.white), // Set the color of the icon here
+        backgroundColor: Colors.black,
       ),
+      bottomNavigationBar: buildBottomNavigationBar(),
     );
+  }
+
+  String? getListIdByName(String listName) {
+    // Return the list ID for the given list name
+    return listNameToIdMap[listName];
   }
 
   Future<List<dynamic>> fetchItemsForList(String listName) async {
