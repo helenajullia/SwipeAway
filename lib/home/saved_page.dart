@@ -8,6 +8,9 @@ import '../adminService/HotelCard.dart';
 import '../adminService/HotelModel.dart';
 import 'search_page.dart';
 import 'myAccount/myAccount_page.dart';
+import 'package:swipe_away/home/saved_page.dart';
+import 'package:swipe_away/home/search_page.dart';
+import '../../authentication/login.dart';
 
 class SavedPage extends StatefulWidget {
   @override
@@ -30,7 +33,6 @@ class _SavedPageState extends State<SavedPage> {
   @override
   void initState() {
     super.initState();
-    // Immediately fetch all saved hotels and events on init.
     fetchSavedHotelsAndEvents();
   }
 
@@ -179,14 +181,9 @@ class _SavedPageState extends State<SavedPage> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => _onWillPop(),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.sort),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
+        elevation: 0,
       ),
       body: AnimationLimiter( // Wrap your ListView with AnimationLimiter
         child: ListView(
@@ -205,17 +202,6 @@ class _SavedPageState extends State<SavedPage> {
           ),
         ),
       ),
-        // bottomNavigationBar: BottomNavigationBar(
-        //   items: const <BottomNavigationBarItem>[
-        //     BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        //     BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Saved'),
-        //     BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
-        //   ],
-        //   currentIndex: _currentIndex,
-        //   selectedItemColor: Colors.black,
-        //   unselectedItemColor: Colors.grey.shade600,
-        //   onTap: _onItemTapped,
-        // ),
       bottomNavigationBar: buildBottomNavigationBar(),
       ),
     );
@@ -249,17 +235,13 @@ class _SavedPageState extends State<SavedPage> {
           MaterialPageRoute(builder: (context) => SearchPage()),
         );
         break;
-
-      case 1:
-        break;
-
       case 2:
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MyAccountPage()),
         );
         break;
-    // No need for a case 2 because we are already on the MyAccountPage
+    // No need for a case 1 because we are already on the SavedPage
     }
   }
 }
