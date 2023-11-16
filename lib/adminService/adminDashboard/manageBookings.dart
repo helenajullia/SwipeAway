@@ -10,82 +10,128 @@ class ManageBookings extends StatefulWidget {
 }
 
 class _ManageBookingsState extends State<ManageBookings> {
+  List<Booking> bookings = [];
 
-  Future<List<Booking>> fetchBookings() async {
-    QuerySnapshot bookingSnapshot = await FirebaseFirestore.instance.collection('bookings').get();
-
-    List<Booking> bookings = [];
-    for (var doc in bookingSnapshot.docs) {
-      var data = doc.data() as Map<String, dynamic>;
-      // Assuming 'userId' is the field where the user's document ID is stored
-      String userId = data['userId'];
-
-      // Fetch the user document
-      var userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-      var userData = userSnapshot.data() as Map<String, dynamic>;
-      String firstName = userData['firstName'];
-      String lastName = userData['lastName'];
-
-      // Create the booking with user information
-      try {
-        var booking = Booking.fromMap(data, firstName, lastName);
-        bookings.add(booking);
-      } catch (e) {
-        print('Error parsing booking data: $e');
-      }
-    }
-    return bookings;
+  @override
+  void initState() {
+    super.initState();
+    fetchAllBookings();
   }
 
+  Future<void> updateBookingStatus(String email, String docId, String newStatus) async {
+    if (email == 'Unknown') {
+      print('Invalid email address, cannot update booking status.');
+      return;
+    }
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(email)
+          .collection('bookings')
+          .doc(docId);
+
+      await docRef.update({'status': newStatus});
+    } catch (e) {
+      print('An error occurred while updating booking status: $e');
+    }
+  }
+
+
+
+  fetchAllBookings() async {
+    QuerySnapshot usersSnapshot = await FirebaseFirestore.instance.collection(
+        'users').get();
+    for (var userDoc in usersSnapshot.docs) {
+      String email = userDoc.id;
+      QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(email)
+          .collection('bookings')
+          .get();
+
+      for (var bookingDoc in bookingsSnapshot.docs) {
+        String docId = bookingDoc.id;
+        Map<String, dynamic> bookingData = bookingDoc.data() as Map<
+            String,
+            dynamic>;
+        Map<String, dynamic>? userData = userDoc.data() as Map<String,
+            dynamic>?;
+
+        String firstName = userData != null && userData['firstName'] != null
+            ? userData['firstName'] as String
+            : 'Unknown';
+        String lastName = userData != null && userData['lastName'] != null
+            ? userData['lastName'] as String
+            : 'Unknown';
+
+        bookings.add(Booking.fromMap(bookingData, docId, firstName, lastName,email));
+      }
+    }
+
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Bookings', style: GoogleFonts.roboto()),
         backgroundColor: Colors.black,
+        title: Text("View Bookings"),
       ),
-      body: FutureBuilder<List<Booking>>(
-        future: fetchBookings(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                Booking booking = snapshot.data![index];
-                return Dismissible(
-                  key: Key(booking.hotelId),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 20.0),
-                      child: Icon(Icons.delete, color: Colors.white),
+      body: ListView.builder(
+        itemCount: bookings.length,
+        itemBuilder: (context, index) {
+          Booking booking = bookings[index];
+          return Card(
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text("${booking.firstName} ${booking.lastName}"),
+                  subtitle: Text(
+                      "${booking.hotelId}\nStatus: ${booking.status}"),
+                  trailing: DropdownButton<String>(
+                    value: (booking.status != 'approved' && booking.status != 'canceled') ? null : booking.status,
+                    items: ['approved', 'canceled']
+                        .map((String value) =>
+                        DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ))
+                        .toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          booking.status = newValue;
+                        });
+                        updateBookingStatus(booking.email, booking.docId, newValue); // Use the correct identifiers
+                      }
+                    },
+                    hint: Text('Select Status'),
+
+          ),
+                ),
+                if (booking.hotelImageURL.isNotEmpty)
+                  Container(
+                    height: 200, // Adjust height as needed
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: booking.hotelImageURL.length,
+                      itemBuilder: (context, imageIndex) {
+                        return Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Image.network(
+                            booking.hotelImageURL[imageIndex],
+                            // Display each picture
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.error),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  onDismissed: (direction) async {
-                    await FirebaseFirestore.instance.collection('bookings').doc(booking.hotelId).delete();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("${booking.hotelId} booking has been deleted"),
-                      ),
-                    );
-                  },
-                  child: ListTile(
-                    title: Text(booking.hotelId),
-                    subtitle: Text('${booking.checkInDate} - ${booking.checkOutDate}'),
-                  ),
-                );
-              },
-            );
-          } else {
-            return Text('No bookings found');
-          }
+              ],
+            ),
+          );
         },
       ),
     );
