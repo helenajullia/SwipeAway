@@ -23,6 +23,7 @@ class _SavedPageState extends State<SavedPage> {
   String? selectedCounty;
   String eventSearchKeyword = '';
 
+
   TextEditingController countyController = TextEditingController();
   TextEditingController eventSearchController = TextEditingController();
 
@@ -88,28 +89,32 @@ class _SavedPageState extends State<SavedPage> {
 
   void saveEvent(Event event) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    // Check if the event already exists in the user's saved events
     var existingEvent = await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
-        .collection('events')
+        .collection('savedEvents')
         .where('name', isEqualTo: event.name)
         .limit(1)
         .get();
 
-    // Check if the event already exists
     if (existingEvent.docs.isEmpty) {
-      FirebaseFirestore.instance
+      // Event does not exist, so add it
+      await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
-          .collection('events')
-          .add(event.toMap()); // Assuming Event class has a toMap() method
+          .collection('savedEvents')
+          .add(event.toMap());
     } else {
-      // Event already exists, show a message or handle accordingly
+      // Event already exists, handle as needed (e.g., show a message)
     }
   }
 
   void saveHotel(Hotel hotel) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    // Check if the hotel already exists in the user's saved hotels
     var existingHotel = await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -118,15 +123,15 @@ class _SavedPageState extends State<SavedPage> {
         .limit(1)
         .get();
 
-    // Check if the hotel already exists
     if (existingHotel.docs.isEmpty) {
-      FirebaseFirestore.instance
+      // Hotel does not exist, so add it
+      await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .collection('savedHotels')
-          .add(hotel.toMap()); // Assuming Hotel class has a toMap() method
+          .add(hotel.toMap());
     } else {
-      // Hotel already exists, show a message or handle accordingly
+      // Hotel already exists, handle as needed (e.g., show a message)
     }
   }
 
@@ -185,22 +190,61 @@ class _SavedPageState extends State<SavedPage> {
           ),
         ),
       ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Saved'),
-            BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
-          ],
-          currentIndex: _currentIndex,
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.grey.shade600,
-          onTap: _onItemTapped,
-        ),
+        // bottomNavigationBar: BottomNavigationBar(
+        //   items: const <BottomNavigationBarItem>[
+        //     BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+        //     BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Saved'),
+        //     BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
+        //   ],
+        //   currentIndex: _currentIndex,
+        //   selectedItemColor: Colors.black,
+        //   unselectedItemColor: Colors.grey.shade600,
+        //   onTap: _onItemTapped,
+        // ),
+      bottomNavigationBar: buildBottomNavigationBar(),
     );
   }
 
-  
+  BottomNavigationBar buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      items: [
+        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+        BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Saved'),
+        BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
+      ],
+      currentIndex: _currentIndex,
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.grey.shade600,
+      onTap: (index) {
+        setState(() => _currentIndex = index);
+        // Assuming index 0 is the search icon
+        switch (index) {
+          case 0: // Search Page
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SearchPage()),
+          );
+            break;
+          case 1: // Saved Page
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => SavedPage()),
+            // );
+            break;
+          case 2: // My Account Page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MyAccountPage()),
+            );
+            break;
+        // Handle other indices, if necessary
+        }
+      },
+    );
+  }
 }
+
+
 
 Widget buildExpansionTile(String title, List<dynamic> items) {
   return ExpansionTile(

@@ -349,9 +349,8 @@ class _SearchPageState extends State<SearchPage> {
       ),
       bottomNavigationBar: buildBottomNavigationBar(),
     );
-
-
   }
+
   DropdownButtonHideUnderline buildCountyDropdown() {
     return DropdownButtonHideUnderline(
       child: Container(

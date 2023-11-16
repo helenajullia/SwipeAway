@@ -84,7 +84,7 @@ class _BookingsPageState extends State<BookingsPage> {
 
   Widget _buildBookingList() {
     return ListView.builder(
-      itemCount: _bookings.length + 1,
+      itemCount: _bookings.length+1,
       itemBuilder: (context, index) {
         if (index < _bookings.length) {
           return _bookings[index].data() != null
