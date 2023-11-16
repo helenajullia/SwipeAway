@@ -19,24 +19,33 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   final SwiperController swiperController = SwiperController();
 
   // Method to save the hotel to Firestore
-  void saveHotel(Hotel hotel) {
+  void saveHotel(Hotel hotel) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
-    FirebaseFirestore.instance
+
+    var existingHotel = await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('savedHotels')
-        .add({
-      'name': hotel.name,
-      'county': hotel.county,
-      'city': hotel.city,
-      'description': hotel.description,
-      'singleRooms': hotel.singleRooms,
-      'doubleRooms': hotel.doubleRooms,
-      'imageURLs': hotel.imageURLs,
-      'pricePerSingleRoomPerNight' : hotel.pricePerSingleRoomPerNight,
-      'pricePerDoubleRoomPerNight' : hotel.pricePerDoubleRoomPerNight,
-    });
+        .where('name', isEqualTo: hotel.name)
+        .limit(1)
+        .get();
+
+    if (existingHotel.docs.isEmpty) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('savedHotels')
+          .add(hotel.toMap());
+    } else {
+      // Show a message if the hotel already exists
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('The hotel already exists.'),
+        ),
+      );
+    }
   }
+
 
   void _onSwipeUp(int index) {
     showDialog(

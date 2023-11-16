@@ -8,9 +8,6 @@ import '../adminService/HotelCard.dart';
 import '../adminService/HotelModel.dart';
 import 'search_page.dart';
 import 'myAccount/myAccount_page.dart';
-import 'package:swipe_away/home/saved_page.dart';
-import 'package:swipe_away/home/search_page.dart';
-import '../../authentication/login.dart';
 
 class SavedPage extends StatefulWidget {
   @override
@@ -33,6 +30,7 @@ class _SavedPageState extends State<SavedPage> {
   @override
   void initState() {
     super.initState();
+    // Immediately fetch all saved hotels and events on init.
     fetchSavedHotelsAndEvents();
   }
 
@@ -127,7 +125,6 @@ class _SavedPageState extends State<SavedPage> {
   void saveHotel(Hotel hotel) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
-    // Check if the hotel already exists in the user's saved hotels
     var existingHotel = await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -137,39 +134,21 @@ class _SavedPageState extends State<SavedPage> {
         .get();
 
     if (existingHotel.docs.isEmpty) {
-      // Hotel does not exist, so add it
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .collection('savedHotels')
           .add(hotel.toMap());
     } else {
-      // Hotel already exists, handle as needed (e.g., show a message)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('The hotel already exists.'),
+        ),
+      );
     }
   }
 
-  void _onItemTapped(int index) {
-    if (index != _currentIndex) {
-      setState(() {
-        _currentIndex = index;
-      });
-      switch (index) {
-        case 0:
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => SearchPage()),
-            ModalRoute.withName('/'), // Assuming '/' is your SearchPage route
-          );
-          break;
-        case 2:
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => MyAccountPage()),
-            ModalRoute.withName('/'), // Assuming '/' is your MyAccountPage route
-          );
-          break;
-      // No default case needed as we don't navigate when the current index is tapped
-      }
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -181,9 +160,16 @@ class _SavedPageState extends State<SavedPage> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => _onWillPop(),
-        ),
-        elevation: 0,
+          onPressed: () {
+                Navigator.of(context).pop();
+                onTabTapped(0);
+          }),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.sort),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
       ),
       body: AnimationLimiter( // Wrap your ListView with AnimationLimiter
         child: ListView(
@@ -235,13 +221,17 @@ class _SavedPageState extends State<SavedPage> {
           MaterialPageRoute(builder: (context) => SearchPage()),
         );
         break;
+
+      case 1:
+        break;
+
       case 2:
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MyAccountPage()),
         );
         break;
-    // No need for a case 1 because we are already on the SavedPage
+    // No need for a case 2 because we are already on the MyAccountPage
     }
   }
 }

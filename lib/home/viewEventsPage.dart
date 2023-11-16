@@ -38,14 +38,33 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
   }
 
   // Method to save the hotel to Firestore
-  void saveEvent(Event event) {
+  void saveEvent(Event event) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
-    FirebaseFirestore.instance
+
+    var existingEvent = await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
-        .collection('savedEvents') // Modifică numele colecției la 'savedEvents'
-        .add(event.toMap()); // Adaugă aici metoda toMap dacă nu există deja
+        .collection('savedEvents')
+        .where('name', isEqualTo: event.name)
+        .limit(1)
+        .get();
+
+    if (existingEvent.docs.isEmpty) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('savedEvents')
+          .add(event.toMap());
+    } else {
+      // Show a message if the hotel already exists
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('The event already exists.'),
+        ),
+      );
+    }
   }
+
 
   void _onSwipeUp(int index) {
     // Make sure to check if the index is within the bounds of the list
