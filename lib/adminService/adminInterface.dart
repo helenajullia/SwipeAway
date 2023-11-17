@@ -469,6 +469,155 @@ class _AdminInterfaceState extends State<AdminInterface> {
     );
   }
 
+  
+  void _showEditHotelDialog(BuildContext context, Hotel hotel) {
+    TextEditingController nameController = TextEditingController(text: hotel.name);
+    TextEditingController doubleRoomsController = TextEditingController(text: hotel.doubleRooms.toString());
+    TextEditingController singleRoomsController = TextEditingController(text: hotel.singleRooms.toString());
+    TextEditingController priceDoubleRoomController = TextEditingController(text: hotel.pricePerDoubleRoomPerNight.toString());
+    TextEditingController priceSingleRoomController = TextEditingController(text: hotel.pricePerSingleRoomPerNight.toString());
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Hotel'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: 'Hotel Name'),
+                ),
+                TextField(
+                  controller: doubleRoomsController,
+                  decoration: InputDecoration(labelText: 'Number of Double Rooms'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: singleRoomsController,
+                  decoration: InputDecoration(labelText: 'Number of Single Rooms'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: priceDoubleRoomController,
+                  decoration: InputDecoration(labelText: 'Price Per Double Room Per Night'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: priceSingleRoomController,
+                  decoration: InputDecoration(labelText: 'Price Per Single Room Per Night'),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Save'),
+              onPressed: () {
+                try {
+                  // Parse and validate inputs
+                  int doubleRooms = int.parse(doubleRoomsController.text);
+                  int singleRooms = int.parse(singleRoomsController.text);
+                  double priceDoubleRoom = double.parse(priceDoubleRoomController.text);
+                  double priceSingleRoom = double.parse(priceSingleRoomController.text);
+
+                  // Call the update function with validated and parsed inputs
+                  updateHotel(
+                      nameController.text,  // Use name from the controller
+                      doubleRooms,
+                      singleRooms,
+                      priceDoubleRoom,
+                      priceSingleRoom
+                  );
+                } catch (e) {
+                  print("Error parsing input: $e");
+                  // Optionally, show an error message to the user
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Input Error"),
+                        content: Text("Please check your inputs and try again."),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text("OK"),
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+                Navigator.of(context).pop();  // Close the dialog
+              },
+            ),
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> updateHotel(String hotelName, int doubleRooms, int singleRooms,
+      double priceDoubleRoom, double priceSingleRoom) async {
+    try {
+      QuerySnapshot hotelsSnapshot = await FirebaseFirestore.instance
+          .collection('hotels')
+          .where('name', isEqualTo: hotelName)
+          .get();
+
+      for (var hotelDoc in hotelsSnapshot.docs) {
+        String hotelId = hotelDoc.id;
+        await FirebaseFirestore.instance
+            .collection('hotels')
+            .doc(hotelId)
+            .update({
+          'doubleRooms': doubleRooms,
+          'singleRooms': singleRooms,
+          'pricePerDoubleRoomPerNight': priceDoubleRoom,
+          'pricePerSingleRoomPerNight': priceSingleRoom,
+        })
+            .then((_) => print("Hotel updated successfully: $hotelId"))
+            .catchError((error) => print("Failed to update hotel $hotelId: $error"));
+      }
+    } catch (e) {
+      print("Error updating hotels by name $hotelName: $e");
+    }
+  }
+
+
+
+
+
+  void _selectHotelToUpdate(BuildContext context) async {
+    var hotels = await fetchHotels();  // Fetch the list of hotels
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return ListView.builder(
+          itemCount: hotels.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(hotels[index].name),
+              onTap: () {
+                Navigator.of(context).pop(); // Close the bottom sheet
+                _showEditHotelDialog(context, hotels[index]); // Call the edit dialog
+              },
+            );
+          },
+        );
+      },
+    );
+  }
 
 
   @override
@@ -627,6 +776,13 @@ class _AdminInterfaceState extends State<AdminInterface> {
                       );
                     },
                   ),
+                  ListTile(
+                    leading: Icon(Icons.update, color: Colors.black),
+                    title: Text('Update Hotels', style: GoogleFonts.roboto()),
+                    onTap: () {
+                      _selectHotelToUpdate(context);
+                    },
+                  ),
                   ],
                     ),
                   ),
@@ -709,6 +865,7 @@ class _AdminInterfaceState extends State<AdminInterface> {
                             );
                           },
                         ),
+
                       ],
                     ),
                   ),
