@@ -10,6 +10,7 @@ import 'package:swipe_away/adminService/adminDashboard/manageHotels.dart';
 import 'package:swipe_away/adminService/adminDashboard/manageUsers.dart';
 
 import '../authentication/login.dart';
+import 'BookingModel.dart';
 import 'HotelModel.dart';
 import 'EventModel.dart';
 import 'adminDashboard/manageEvents.dart';
@@ -389,6 +390,87 @@ class _AdminInterfaceState extends State<AdminInterface> {
     );
   }
 
+  Widget _buildDismissibleBookingList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('users').snapshots(),
+      builder: (context, userSnapshot) {
+        if (userSnapshot.hasError) {
+          return Text('Error: ${userSnapshot.error}');
+        } else if (!userSnapshot.hasData || userSnapshot.data!.docs.isEmpty) {
+          return Text('No users found');
+        } else {
+          return ListView.builder(
+            itemCount: userSnapshot.data!.docs.length,
+            itemBuilder: (context, userIndex) {
+              var userDoc = userSnapshot.data!.docs[userIndex];
+              Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>; // Corrected line
+
+              // Nested StreamBuilder for bookings of each user
+              return StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(userDoc.id)
+                    .collection('bookings')
+                    .snapshots(),
+                builder: (context, bookingSnapshot) {
+                  if (bookingSnapshot.hasError) {
+                    return Text('Error: ${bookingSnapshot.error}');
+                  } else if (!bookingSnapshot.hasData || bookingSnapshot.data!.docs.isEmpty) {
+                    return Container(); // Return an empty container if no bookings for this user
+                  } else {
+                    return Column(
+                      children: bookingSnapshot.data!.docs.map((bookingDoc) {
+                        var bookingData = bookingDoc.data() as Map<String, dynamic>;
+                        Booking booking = Booking.fromMap(bookingData, bookingDoc.id,
+                            userData['firstName'], userData['lastName'], userData['email']); // Corrected line
+
+                        return Dismissible(
+                          key: Key(bookingDoc.id),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 20.0),
+                              child: Icon(Icons.delete, color: Colors.white),
+                            ),
+                          ),
+                          onDismissed: (direction) async {
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(userDoc.id)
+                                .collection('bookings')
+                                .doc(bookingDoc.id)
+                                .delete();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Booking deleted"),
+                              ),
+                            );
+                          },
+                          child: ListTile(
+                            title: Text('${userData['firstName']} ${userData['lastName']}'),
+                            subtitle: Text(
+                                'Booking from ${booking.checkInDate} to ${booking.checkOutDate} - Status: ${booking.status}'),
+                            leading: (booking.hotelImageURL.isNotEmpty)
+                                ? Image.network(booking.hotelImageURL.first, width: 100, height: 100, fit: BoxFit.cover)
+                                : null,
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }
+                },
+              );
+            },
+          );
+        }
+      },
+    );
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -571,7 +653,12 @@ class _AdminInterfaceState extends State<AdminInterface> {
                           leading: Icon(Icons.delete, color: Colors.black),
                           title: Text('Delete Bookings', style: GoogleFonts.roboto()),
                           onTap: () {
-                            // Handle delete users
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return _buildDismissibleBookingList();
+                              },
+                            );
                           },
                         ),
                       ],
