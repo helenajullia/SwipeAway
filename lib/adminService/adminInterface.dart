@@ -390,6 +390,182 @@ class _AdminInterfaceState extends State<AdminInterface> {
     );
   }
 
+  void _showEditEventDialog(BuildContext context, Event event) {
+    TextEditingController nameController = TextEditingController(text: event.name);
+    TextEditingController cityController = TextEditingController(text: event.city);
+    TextEditingController countyController = TextEditingController(text: event.county);
+    TextEditingController singleRoomController = TextEditingController(text:event.singleRooms.toString());
+    TextEditingController doubleRoomController = TextEditingController(text: event.doubleRooms.toString());
+    TextEditingController pricePerSingleRoomPerNightController = TextEditingController(text: event.pricePerSingleRoomPerNight.toString());
+    TextEditingController pricePerDoubleRoomPerNightController = TextEditingController(text: event.pricePerDoubleRoomPerNight.toString());
+    TextEditingController descriptionController = TextEditingController(text: event.description);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Event'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: 'Event Name'),
+                ),
+                TextField(
+                  controller: cityController,
+                  decoration: InputDecoration(labelText: 'City Name'),
+                ),
+                TextField(
+                  controller: countyController,
+                  decoration: InputDecoration(labelText: 'County Name'),
+                ),
+                TextField(
+                  controller: singleRoomController,
+                  decoration: InputDecoration(labelText: 'Number of single rooms'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: doubleRoomController,
+                  decoration: InputDecoration(labelText: 'Number of double rooms'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: pricePerSingleRoomPerNightController,
+                  decoration: InputDecoration(labelText: 'Price of single room'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: pricePerDoubleRoomPerNightController,
+                  decoration: InputDecoration(labelText: 'Price of double room'),
+                  keyboardType: TextInputType.number,
+
+                ),
+                TextField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(labelText: 'Description'),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Save'),
+              onPressed: () {
+                try {
+                  // Parse and validate inputs
+
+                  String name = nameController.text;
+                  String city =  cityController.text;
+                  String county = countyController.text;
+                  String description = descriptionController.text;
+                  int doubleRooms = int.parse(doubleRoomController.text);
+                  int singleRooms = int.parse(singleRoomController.text);
+                  double priceDoubleRoom = double.parse(pricePerDoubleRoomPerNightController.text);
+                  double priceSingleRoom = double.parse(pricePerSingleRoomPerNightController.text);
+
+                  // Call the update function with validated and parsed inputs
+                  updateEvent(
+                      name,
+                      city,
+                      county,
+                      description,
+                      singleRooms,
+                      doubleRooms,
+                      priceDoubleRoom,
+                      priceSingleRoom
+                  );
+                } catch (e) {
+                  print("Error parsing input: $e");
+                  // Optionally, show an error message to the user
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Input Error"),
+                        content: Text("Please check your inputs and try again."),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text("OK"),
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+                Navigator.of(context).pop();  // Close the dialog
+              },
+            ),
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> updateEvent(String name, String county,
+      String city, String description, int doubleRooms, int singleRooms, double pricePerDoubleRoomPerNight, double pricePerSingleRoomPerNight
+      ) async {
+    try {
+      QuerySnapshot eventSnapshot = await FirebaseFirestore.instance
+          .collection('events')
+          .where('name', isEqualTo: name)
+          .get();
+      for (var eventDoc in eventSnapshot.docs) {
+        String eventId = eventDoc.id;
+        await FirebaseFirestore.instance
+            .collection('events')
+            .doc(eventId)
+            .update({
+          'name': name,
+          'county': county,
+          'city': city,
+          'description': description,
+          'doubleRooms': doubleRooms,
+          'singleRooms': singleRooms,
+          'pricePerDoubleRoomPerNight': pricePerDoubleRoomPerNight,
+          'pricePerSingleRoomPerNight': pricePerSingleRoomPerNight,
+        })
+            .then((_) => print("Event updated successfully: $eventId"))
+            .catchError((error) =>
+            print("Failed to update event $eventId: $error"));
+      }
+    } catch (e) {
+      print("Error updating event: $e");
+    }
+  }
+
+
+
+  void _selectEventToUpdate(BuildContext context) async {
+    var events = await fetchEvents();  // Fetch the list of events
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return ListView.builder(
+          itemCount: events.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(events[index].name),
+              onTap: () {
+                Navigator.of(context).pop(); // Close the bottom sheet
+                _showEditEventDialog(context, events[index]); // Call the edit dialog
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+
   Widget _buildDismissibleBookingList() {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('users').snapshots(),
@@ -865,7 +1041,13 @@ class _AdminInterfaceState extends State<AdminInterface> {
                             );
                           },
                         ),
-
+                        ListTile(
+                          leading: Icon(Icons.update, color: Colors.black),
+                          title: Text('Update Events', style: GoogleFonts.roboto()),
+                          onTap: () {
+                            _selectEventToUpdate(context);
+                          },
+                        ),
                       ],
                     ),
                   ),
