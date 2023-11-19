@@ -5,8 +5,8 @@ class Hotel {
   final int singleRooms;
   final int doubleRooms;
   final String description;
-  final double pricePerSingleRoomPerNight;
-  final double pricePerDoubleRoomPerNight;
+  final int pricePerSingleRoomPerNight;
+  final int pricePerDoubleRoomPerNight;
   final List<String> imageURLs;
 
   Map<String, dynamic> toMap() {

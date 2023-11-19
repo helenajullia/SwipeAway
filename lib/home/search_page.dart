@@ -139,7 +139,7 @@ class _SearchPageState extends State<SearchPage> {
     // Filter hotels based on search criteria
     return snapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>))
         .where((hotel) =>
-        hotel.county == selectedCounty &&
+    hotel.county == selectedCounty &&
         hotel.singleRooms >= singleRoomCount &&
         hotel.doubleRooms >= doubleRoomCount)
         .toList();
@@ -188,7 +188,7 @@ class _SearchPageState extends State<SearchPage> {
       loop: false,
       onIndexChanged: (index) {
         if (previousIndex >= 0 && previousIndex < searchResults!.length) {
-           saveHotel(searchResults![previousIndex]);
+          saveHotel(searchResults![previousIndex]);
 
           // Optional: Add additional logic to handle different swipe directions
           // This can be implemented using additional state variables or methods
@@ -320,32 +320,32 @@ class _SearchPageState extends State<SearchPage> {
                         ),
                       ),
                     ),
-                const SizedBox(height: 40),
-                buildCountyDropdown(),
-                const SizedBox(height: 12),
-                buildCheckInTextField(),
-                const SizedBox(height: 12),
-                buildCheckOutTextField(),
-                const SizedBox(height: 12),
-                buildRoomsRow(),
-                Spacer(),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: performSearch, // Updated line
+                    const SizedBox(height: 40),
+                    buildCountyDropdown(),
+                    const SizedBox(height: 12),
+                    buildCheckInTextField(),
+                    const SizedBox(height: 12),
+                    buildCheckOutTextField(),
+                    const SizedBox(height: 12),
+                    buildRoomsRow(),
+                    Spacer(),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: performSearch, // Updated line
 
-                    child: Text('Search'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ]
-      ),
+                        child: Text('Search'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ]
+        ),
       ),
       bottomNavigationBar: buildBottomNavigationBar(),
     );
@@ -520,10 +520,10 @@ class _SearchPageState extends State<SearchPage> {
         // Assuming index 0 is the search icon
         switch (index) {
           case 0: // Search Page
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => SearchPage()),
-            // );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => SearchPage()),
+          // );
             break;
           case 1: // Saved Page
             Navigator.push(

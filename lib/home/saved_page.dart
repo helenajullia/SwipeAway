@@ -373,55 +373,55 @@ class _SavedPageState extends State<SavedPage> {
 
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Saved Items', style: GoogleFonts.roboto()),
-          backgroundColor: Colors.black,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () => _onWillPop(),
-          ),
-          elevation: 0,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Saved Items', style: GoogleFonts.roboto()),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => _onWillPop(),
         ),
-        body: AnimationLimiter(
-          child: ListView(
-            children: AnimationConfiguration.toStaggeredList(
-              duration: const Duration(milliseconds: 375),
-              childAnimationBuilder: (widget) =>
-                  SlideAnimation(
-                    horizontalOffset: 50.0,
-                    child: FadeInAnimation(
-                      child: widget,
-                    ),
+        elevation: 0,
+      ),
+      body: AnimationLimiter(
+        child: ListView(
+          children: AnimationConfiguration.toStaggeredList(
+            duration: const Duration(milliseconds: 375),
+            childAnimationBuilder: (widget) =>
+                SlideAnimation(
+                  horizontalOffset: 50.0,
+                  child: FadeInAnimation(
+                    child: widget,
                   ),
-              children: [
-                buildExpansionTile('Hotels', filteredHotels),
+                ),
+            children: [
+              buildExpansionTile('Hotels', filteredHotels),
 
-                buildExpansionTile('Events', filteredEvents),
+              buildExpansionTile('Events', filteredEvents),
 
-                ...customListNames.map((listName) {
-                  String? listId = getListIdByName(listName);
-                  if (listId != null) {
-                    return buildExpansionTileList(listName, listId);
-                  } else {
-                    return ListTile(
-                      title: Text('Error: List ID not found for $listName'),
-                    );
-                  }
-                }).toList(),
-              ],
-            ),
+              ...customListNames.map((listName) {
+                String? listId = getListIdByName(listName);
+                if (listId != null) {
+                  return buildExpansionTileList(listName, listId);
+                } else {
+                  return ListTile(
+                    title: Text('Error: List ID not found for $listName'),
+                  );
+                }
+              }).toList(),
+            ],
           ),
         ),
+      ),
 
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _createNewList(context),
-          child: Icon(Icons.add, color: Colors.white),
-          // Set the color of the icon here
-          backgroundColor: Colors.black,
-        ),
-        bottomNavigationBar: buildBottomNavigationBar(),
-      );
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _createNewList(context),
+        child: Icon(Icons.add, color: Colors.white),
+        // Set the color of the icon here
+        backgroundColor: Colors.black,
+      ),
+      bottomNavigationBar: buildBottomNavigationBar(),
+    );
   }
 
 
@@ -463,4 +463,3 @@ class _SavedPageState extends State<SavedPage> {
     }
   }
 }
-
