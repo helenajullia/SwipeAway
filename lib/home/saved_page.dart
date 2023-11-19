@@ -25,7 +25,6 @@ class _SavedPageState extends State<SavedPage> {
   String eventSearchKeyword = '';
   List<String> customListNames = [];
   Map<String, String> listNameToIdMap = {};
-  bool isLoading = true; // Add this line
 
   TextEditingController countyController = TextEditingController();
   TextEditingController eventSearchController = TextEditingController();
@@ -292,12 +291,10 @@ class _SavedPageState extends State<SavedPage> {
           customListNames.add(listName);
           listNameToIdMap[listName] = doc.id; // Store the list name to ID mapping
         }
-        isLoading = false; // Set isLoading to false after data is fetched
+
       } catch (e) {
         print('Error fetching saved items: $e');
-        setState(() {
-          isLoading = false; // Set isLoading to false even if there's an error
-        });
+
       }
     }
   }
@@ -376,16 +373,6 @@ class _SavedPageState extends State<SavedPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      // Show loading indicator while data is being fetched
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Loading...'),
-          backgroundColor: Colors.black,
-        ),
-        body: Center(child: CircularProgressIndicator()),
-      );
-    } else {
       return Scaffold(
         appBar: AppBar(
           title: Text('Saved Items', style: GoogleFonts.roboto()),
@@ -435,7 +422,6 @@ class _SavedPageState extends State<SavedPage> {
         ),
         bottomNavigationBar: buildBottomNavigationBar(),
       );
-    }
   }
 
 
