@@ -1,22 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
-import '../home/bookingsDetailsPage.dart';
-import '../home/myAccount/settings/bookingsPage.dart';
 import 'HotelModel.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'HotelModel.dart';
 
 class HotelCard extends StatefulWidget {
   final Hotel hotel;
   final VoidCallback onSwipeLeft;
   final VoidCallback onSwipeRight;
 
-
   HotelCard({
     required this.hotel,
     required this.onSwipeLeft,
     required this.onSwipeRight,
-
   });
 
   @override
@@ -189,7 +187,7 @@ class _HotelCardState extends State<HotelCard> {
             side: BorderSide(color: Colors.white, width: 2),
             minimumSize: Size(180, 40),
           ),
-          onPressed: () => _handleBookNow(widget.hotel),
+          onPressed: _handleBookNow,
           child: Text(
             'Book Now',
             style: GoogleFonts.roboto(),
@@ -199,13 +197,9 @@ class _HotelCardState extends State<HotelCard> {
     );
   }
 
-  void _handleBookNow(Hotel hotel) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => BookingDetailsPage(hotel:hotel),
-    ));
+  void _handleBookNow() {
+
   }
-
-
 
   void _showPriceDialog() {
     showDialog(
