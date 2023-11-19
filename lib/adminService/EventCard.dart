@@ -196,7 +196,7 @@ class _EventCardState extends State<EventCard> {
   }
 
   void _handleBookNow() {
-    // Implement the action for the "Book Now" button
+
   }
 
   void _showPriceDialog() {

@@ -9,6 +9,8 @@ class Booking {
   String lastName;
   String docId;
   String email;
+  int singleRooms;
+  int doubleRooms;
   List<String> hotelImageURL;
 
   Booking({
@@ -20,6 +22,8 @@ class Booking {
     required this.lastName,
     required this.docId,
     required this.email,
+    required this.singleRooms,
+    required this.doubleRooms,
     required this.hotelImageURL,
   });
 
@@ -39,6 +43,8 @@ class Booking {
       lastName: lastName,
       docId: docId,
       email: data['email'] as String? ?? 'Unknown',
+      singleRooms: (data['singleRooms']),
+      doubleRooms: (data['doubleRooms']),
       hotelImageURL: imageUrls, // Using the safely extracted list
     );
   }
