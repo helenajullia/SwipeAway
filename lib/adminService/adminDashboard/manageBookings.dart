@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +21,7 @@ class _ManageBookingsState extends State<ManageBookings> {
   }
 
 
-  Future<void> updateBookingStatusForAllUsers(String bookingId, String newStatus) async {
+  Future<void> updateBookingStatusForAllUsers(String bookingId, String newStatus, Booking booking) async {
     QuerySnapshot usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
 
     for (var userDoc in usersSnapshot.docs) {
@@ -38,9 +40,61 @@ class _ManageBookingsState extends State<ManageBookings> {
             .collection('bookings')
             .doc(bookingId)
             .update({'status': newStatus})
-            .then((_) => print("Status updated for booking $bookingId of user $email"))
+            .then((_) async {
+          if (newStatus == 'approved') {
+            await updateHotelRoomAvailability();
+          }
+          print("Status updated for booking $bookingId of user $email");
+        })
             .catchError((error) => print("Failed to update booking: $error"));
       }
+    }
+  }
+
+  Future<void> updateHotelRoomAvailability() async {
+    try {
+      QuerySnapshot usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
+      for (var userDoc in usersSnapshot.docs) {
+        String email = userDoc.id;
+        QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(email)
+            .collection('bookings')
+            .where('status', isEqualTo: 'approved')
+            .get();
+
+        for (var bookingDoc in bookingsSnapshot.docs) {
+          Booking booking = Booking.fromMap(bookingDoc.data() as Map<String, dynamic>, bookingDoc.id, userDoc['firstName'] ?? 'Unknown', userDoc['lastName'] ?? 'Unknown', email);
+          await updateRoomCount(booking);
+        }
+      }
+    } catch (e) {
+      print("An error occurred while updating room availability: $e");
+    }
+  }
+
+  Future<void> updateRoomCount(Booking booking) async {
+    try {
+      DocumentSnapshot hotelSnapshot = await FirebaseFirestore.instance.collection('hotels').doc(booking.hotelId).get();
+      if (hotelSnapshot.exists) {
+        Map<String, dynamic> hotelData = hotelSnapshot.data() as Map<String, dynamic>;
+        int singleRoomsAvailable = hotelData['singleRooms'];
+        int doubleRoomsAvailable = hotelData['doubleRooms'];
+
+        if (booking.singleRooms > 0) {
+          singleRoomsAvailable = max(0, singleRoomsAvailable - booking.singleRooms);
+        }
+        if (booking.doubleRooms > 0) {
+          doubleRoomsAvailable = max(0, doubleRoomsAvailable - booking.doubleRooms);
+        }
+
+        await FirebaseFirestore.instance.collection('hotels').doc(booking.hotelId).update({
+          'singleRooms': singleRoomsAvailable,
+          'doubleRooms': doubleRoomsAvailable,
+        });
+      }
+    } catch (e) {
+      print("An error occurred while updating a hotel's room count: $e");
     }
   }
 
@@ -107,7 +161,7 @@ class _ManageBookingsState extends State<ManageBookings> {
                         .toList(),
                     onChanged: (String? newValue) {
                       if (newValue != null) {
-                        updateBookingStatusForAllUsers(booking.docId, newValue).then((_) {
+                        updateBookingStatusForAllUsers(booking.docId, newValue,booking).then((_) {
                           setState(() {
                             booking.status = newValue;
                           });
