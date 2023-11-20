@@ -5,8 +5,8 @@ class Hotel {
   final int singleRooms;
   final int doubleRooms;
   final String description;
-  final double pricePerSingleRoomPerNight;
-  final double pricePerDoubleRoomPerNight;
+  final int pricePerSingleRoomPerNight;
+  final int pricePerDoubleRoomPerNight;
   final List<String> imageURLs;
 
   Hotel({
@@ -45,8 +45,8 @@ class Hotel {
       singleRooms: data['singleRooms'],
       doubleRooms: data['doubleRooms'],
       description: data['description'],
-      pricePerSingleRoomPerNight: data['pricePerSingleRoomPerNight'] ,
-      pricePerDoubleRoomPerNight: data['pricePerDoubleRoomPerNight'] ,
+      pricePerSingleRoomPerNight: data['pricePerSingleRoomPerNight'] is int ? data['pricePerSingleRoomPerNight'] : int.tryParse(data['pricePerSingleRoomPerNight'].toString()) ?? 0,
+      pricePerDoubleRoomPerNight: data['pricePerDoubleRoomPerNight'] is int ? data['pricePerDoubleRoomPerNight'] : int.tryParse(data['pricePerDoubleRoomPerNight'].toString()) ?? 0,
       imageURLs: List<String>.from(data['imageURLs'] ?? []),
     );
   }

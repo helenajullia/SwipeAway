@@ -460,8 +460,8 @@ class _AdminInterfaceState extends State<AdminInterface> {
                   String description = descriptionController.text;
                   int doubleRooms = int.parse(doubleRoomController.text);
                   int singleRooms = int.parse(singleRoomController.text);
-                  double priceDoubleRoom = double.parse(pricePerDoubleRoomPerNightController.text);
-                  double priceSingleRoom = double.parse(pricePerSingleRoomPerNightController.text);
+                  int priceDoubleRoom = int.parse(pricePerDoubleRoomPerNightController.text);
+                  int priceSingleRoom = int.parse(pricePerSingleRoomPerNightController.text);
 
                   // Call the update function with validated and parsed inputs
                   updateEvent(
@@ -511,7 +511,7 @@ class _AdminInterfaceState extends State<AdminInterface> {
   }
 
   Future<void> updateEvent(String name, String county,
-      String city, String description, int doubleRooms, int singleRooms, double pricePerDoubleRoomPerNight, double pricePerSingleRoomPerNight
+      String city, String description, int doubleRooms, int singleRooms, int pricePerDoubleRoomPerNight, int pricePerSingleRoomPerNight
       ) async {
     try {
       QuerySnapshot eventSnapshot = await FirebaseFirestore.instance
@@ -696,8 +696,8 @@ class _AdminInterfaceState extends State<AdminInterface> {
                   // Parse and validate inputs
                   int doubleRooms = int.parse(doubleRoomsController.text);
                   int singleRooms = int.parse(singleRoomsController.text);
-                  double priceDoubleRoom = double.parse(priceDoubleRoomController.text);
-                  double priceSingleRoom = double.parse(priceSingleRoomController.text);
+                  int priceDoubleRoom = int.parse(priceDoubleRoomController.text);
+                  int priceSingleRoom = int.parse(priceSingleRoomController.text);
 
                   // Call the update function with validated and parsed inputs
                   updateHotel(
@@ -744,7 +744,7 @@ class _AdminInterfaceState extends State<AdminInterface> {
   }
 
   Future<void> updateHotel(String hotelName, int doubleRooms, int singleRooms,
-      double priceDoubleRoom, double priceSingleRoom) async {
+      int priceDoubleRoom, int priceSingleRoom) async {
     try {
       QuerySnapshot hotelsSnapshot = await FirebaseFirestore.instance
           .collection('hotels')

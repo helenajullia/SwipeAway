@@ -106,13 +106,17 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               onSelectDate: (DateTime date) {
                 setState(() {
                   checkInDate = date;
+                  // Reset checkOutDate if it's before the new checkInDate
+                  if (checkOutDate != null && checkOutDate!.isBefore(checkInDate!)) {
+                    checkOutDate = null;
+                  }
                 });
               },
             ),
             DateSelector(
               title: 'Check-out Date',
               selectedDate: checkOutDate,
-              firstSelectableDate: checkInDate != null ? checkInDate!.add(Duration(days: 1)) : DateTime.now(),
+              firstSelectableDate: checkInDate?.add(Duration(days: 1)),
               onSelectDate: (DateTime date) {
                 setState(() {
                   checkOutDate = date;
