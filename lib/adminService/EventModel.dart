@@ -5,8 +5,8 @@ class Event {
   final int singleRooms;
   final int doubleRooms;
   final String description;
-  final int pricePerSingleRoomPerNight;
-  final int pricePerDoubleRoomPerNight;
+  final double pricePerSingleRoomPerNight;
+  final double pricePerDoubleRoomPerNight;
   final List<String> imageURLs;
 
   Event({
