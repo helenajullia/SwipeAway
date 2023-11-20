@@ -5,8 +5,8 @@ class Event {
   final int singleRooms;
   final int doubleRooms;
   final String description;
-  final int pricePerSingleRoomPerNight;
-  final int pricePerDoubleRoomPerNight;
+  final double pricePerSingleRoomPerNight;
+  final double pricePerDoubleRoomPerNight;
   final List<String> imageURLs;
 
   Event({
@@ -43,8 +43,8 @@ class Event {
       singleRooms: data['singleRooms'],
       doubleRooms: data['doubleRooms'],
       description: data['description'],
-      pricePerSingleRoomPerNight: data['pricePerSingleRoomPerNight'] is int ? data['pricePerSingleRoomPerNight'] : int.tryParse(data['pricePerSingleRoomPerNight'].toString()) ?? 0,
-      pricePerDoubleRoomPerNight: data['pricePerDoubleRoomPerNight'] is int ? data['pricePerDoubleRoomPerNight'] : int.tryParse(data['pricePerDoubleRoomPerNight'].toString()) ?? 0,
+      pricePerSingleRoomPerNight: data['pricePerSingleRoomPerNight'] ,
+      pricePerDoubleRoomPerNight: data['pricePerDoubleRoomPerNight'] ,
       imageURLs: List<String>.from(data['imageURLs'] ?? []),
     );
   }
