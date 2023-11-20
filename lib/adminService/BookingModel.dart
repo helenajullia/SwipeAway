@@ -12,6 +12,7 @@ class Booking {
   int singleRooms;
   int doubleRooms;
   List<String> hotelImageURL;
+  double tripCost;
 
   Booking({
     required this.hotelId,
@@ -25,6 +26,7 @@ class Booking {
     required this.singleRooms,
     required this.doubleRooms,
     required this.hotelImageURL,
+    required this.tripCost
   });
 
   factory Booking.fromMap(Map<String, dynamic> data,String docId, String firstName, String lastName, String email) {
@@ -46,6 +48,7 @@ class Booking {
       singleRooms: (data['singleRooms']),
       doubleRooms: (data['doubleRooms']),
       hotelImageURL: imageUrls, // Using the safely extracted list
+      tripCost: (data['tripCost'])
     );
   }
 }

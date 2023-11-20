@@ -21,8 +21,10 @@ class _ManageBookingsState extends State<ManageBookings> {
   }
 
 
-  Future<void> updateBookingStatusForAllUsers(String bookingId, String newStatus, Booking booking) async {
-    QuerySnapshot usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
+  Future<void> updateBookingStatusForAllUsers(String bookingId,
+      String newStatus, Booking booking) async {
+    QuerySnapshot usersSnapshot = await FirebaseFirestore.instance.collection(
+        'users').get();
 
     for (var userDoc in usersSnapshot.docs) {
       String email = userDoc.id;
@@ -33,6 +35,7 @@ class _ManageBookingsState extends State<ManageBookings> {
           .where(FieldPath.documentId, isEqualTo: bookingId)
           .get();
 
+
       for (var bookingDoc in bookingsSnapshot.docs) {
         await FirebaseFirestore.instance
             .collection('users')
@@ -41,8 +44,9 @@ class _ManageBookingsState extends State<ManageBookings> {
             .doc(bookingId)
             .update({'status': newStatus})
             .then((_) async {
-          if (newStatus == 'approved') {
-            await updateHotelRoomAvailability();
+          if (newStatus == 'approved' || newStatus == 'canceled') {
+            await updateHotelRoomAvailability(
+                booking, newStatus, booking.status);
           }
           print("Status updated for booking $bookingId of user $email");
         })
@@ -51,46 +55,69 @@ class _ManageBookingsState extends State<ManageBookings> {
     }
   }
 
-  Future<void> updateHotelRoomAvailability() async {
+  Future<void> updateHotelRoomAvailability(Booking booking, String newStatus,
+      String oldStatus) async {
     try {
-      QuerySnapshot usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
-      for (var userDoc in usersSnapshot.docs) {
-        String email = userDoc.id;
-        QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(email)
-            .collection('bookings')
-            .where('status', isEqualTo: 'approved')
-            .get();
+      DocumentSnapshot hotelSnapshot = await FirebaseFirestore.instance
+          .collection('hotels').doc(booking.hotelId).get();
+      if (hotelSnapshot.exists) {
+        Map<String, dynamic> hotelData = hotelSnapshot.data() as Map<
+            String,
+            dynamic>;
+        int singleRoomsAvailable = hotelData['singleRooms'];
+        int doubleRoomsAvailable = hotelData['doubleRooms'];
 
-        for (var bookingDoc in bookingsSnapshot.docs) {
-          Booking booking = Booking.fromMap(bookingDoc.data() as Map<String, dynamic>, bookingDoc.id, userDoc['firstName'] ?? 'Unknown', userDoc['lastName'] ?? 'Unknown', email);
-          await updateRoomCount(booking);
+        // Check if the booking was previously approved
+        bool wasApproved = oldStatus == 'approved';
+
+        if (newStatus == 'approved' && !wasApproved) {
+          // Decrease available rooms since a new booking is approved
+          singleRoomsAvailable =
+              max(0, singleRoomsAvailable - booking.singleRooms);
+          doubleRoomsAvailable =
+              max(0, doubleRoomsAvailable - booking.doubleRooms);
+        } else if (newStatus == 'canceled' && wasApproved) {
+          // Increase available rooms since a booking is canceled
+          singleRoomsAvailable += booking.singleRooms;
+          doubleRoomsAvailable += booking.doubleRooms;
         }
+
+        // Update the hotel document with the new room count
+        await FirebaseFirestore.instance.collection('hotels').doc(
+            booking.hotelId).update({
+          'singleRooms': singleRoomsAvailable,
+          'doubleRooms': doubleRoomsAvailable,
+        });
       }
     } catch (e) {
-      print("An error occurred while updating room availability: $e");
+      print("An error occurred while updating a hotel's room count: $e");
     }
   }
 
   Future<void> updateRoomCount(Booking booking) async {
     try {
-      DocumentSnapshot hotelSnapshot = await FirebaseFirestore.instance.collection('hotels').doc(booking.hotelId).get();
+      DocumentSnapshot hotelSnapshot = await FirebaseFirestore.instance
+          .collection('hotels').doc(booking.hotelId).get();
       if (hotelSnapshot.exists) {
-        Map<String, dynamic> hotelData = hotelSnapshot.data() as Map<String, dynamic>;
+        Map<String, dynamic> hotelData = hotelSnapshot.data() as Map<
+            String,
+            dynamic>;
         int singleRoomsAvailable = hotelData['singleRooms'];
         int doubleRoomsAvailable = hotelData['doubleRooms'];
 
         print(booking.singleRooms);
         print(singleRoomsAvailable);
         if (booking.singleRooms > 0) {
-          singleRoomsAvailable = max(0, singleRoomsAvailable - booking.singleRooms);
+          singleRoomsAvailable =
+              max(0, singleRoomsAvailable - booking.singleRooms);
         }
         if (booking.doubleRooms > 0) {
-          doubleRoomsAvailable = max(0, doubleRoomsAvailable - booking.doubleRooms);
+          doubleRoomsAvailable =
+              max(0, doubleRoomsAvailable - booking.doubleRooms);
         }
 
-        await FirebaseFirestore.instance.collection('hotels').doc(booking.hotelId).update({
+        await FirebaseFirestore.instance.collection('hotels').doc(
+            booking.hotelId).update({
           'singleRooms': singleRoomsAvailable,
           'doubleRooms': doubleRoomsAvailable,
         });
@@ -127,7 +154,8 @@ class _ManageBookingsState extends State<ManageBookings> {
             ? userData['lastName'] as String
             : 'Unknown';
 
-        bookings.add(Booking.fromMap(bookingData, docId, firstName, lastName,email));
+        bookings.add(
+            Booking.fromMap(bookingData, docId, firstName, lastName, email));
       }
     }
 
@@ -151,53 +179,70 @@ class _ManageBookingsState extends State<ManageBookings> {
                 ListTile(
                   title: Text("${booking.firstName} ${booking.lastName}"),
                   subtitle: Text(
-                      "${booking.hotelId}\nStatus: ${booking.status}"),
-                  trailing: DropdownButton<String>(
-                    value: (booking.status != 'approved' && booking.status != 'canceled') ? null : booking.status,
-                    items: ['approved', 'canceled']
-                        .map((String value) =>
-                        DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ))
-                        .toList(),
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        updateBookingStatusForAllUsers(booking.docId, newValue,booking).then((_) {
-                          setState(() {
-                            booking.status = newValue;
-                          });
-                        }).catchError((error) {
-                          // Handle any errors here
-                          print("Error updating status: $error");
-                        });
-                      }
-                    },
-
-                    hint: Text('Select Status'),
-
-          ),
-                ),
-                if (booking.hotelImageURL.isNotEmpty)
-                  Container(
-                    height: 200, // Adjust height as needed
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: booking.hotelImageURL.length,
-                      itemBuilder: (context, imageIndex) {
-                        return Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Image.network(
-                            booking.hotelImageURL[imageIndex],
-                            // Display each picture
-                            errorBuilder: (context, error, stackTrace) =>
-                                Icon(Icons.error),
-                          ),
-                        );
-                      },
-                    ),
+                      "Hotel ID: ${booking.hotelId}\n"
+                          "Status: ${booking.status}\n"
+                          "Check-in Date: ${booking.checkInDate}\n"
+                          "Check-out Date: ${booking.checkOutDate}\n"
+                          "Single Rooms: ${booking.singleRooms}\n"
+                          "Double Rooms: ${booking.doubleRooms}\n"
+                      // Assuming that the trip price is calculated and available in the booking model
+                          "Trip Price: ${booking.tripCost} RON"
                   ),
+                  trailing: buildStatusDropdown(booking),
+                ),
+                // Existing code for displaying hotel images
+                if (booking.hotelImageURL.isNotEmpty)
+                  buildHotelImages(booking.hotelImageURL),
               ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+// Helper method to build the status dropdown
+  Widget buildStatusDropdown(Booking booking) {
+    return DropdownButton<String>(
+      value: (booking.status != 'approved' && booking.status != 'canceled')
+          ? null
+          : booking.status,
+      items: ['approved', 'canceled']
+          .map((String value) =>
+          DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          ))
+          .toList(),
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          updateBookingStatusForAllUsers(booking.docId, newValue, booking)
+              .then((_) {
+            setState(() {
+              booking.status = newValue;
+            });
+          }).catchError((error) {
+            print("Error updating status: $error");
+          });
+        }
+      },
+      hint: Text('Select Status'),
+    );
+  }
+
+// Helper method to build hotel images
+  Widget buildHotelImages(List<String> imageUrls) {
+    return Container(
+      height: 200, // Adjust height as needed
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: imageUrls.length,
+        itemBuilder: (context, imageIndex) {
+          return Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Image.network(
+              imageUrls[imageIndex],
+              errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
             ),
           );
         },

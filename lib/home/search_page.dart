@@ -289,7 +289,7 @@ class _SearchPageState extends State<SearchPage> {
                     image: AssetImage('assets/images/SearchPage.jpeg'),
                     fit: BoxFit.cover,
                     colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(0.85), // Darken the image
+                      Colors.black.withOpacity(0.90), // Darken the image
                       BlendMode.dstATop,
                     ),
                   ),
