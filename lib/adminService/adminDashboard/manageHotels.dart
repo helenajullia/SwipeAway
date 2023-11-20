@@ -26,6 +26,7 @@ class _HotelServiceState extends State<HotelService> {
   List<Uint8List> _webImages = [];
   List<File> _mobileImages = [];
 
+
   Future<void> addHotel() async {
     final String name = _nameController.text;
     final String county = _countyController.text;
