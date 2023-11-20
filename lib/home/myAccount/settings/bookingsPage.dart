@@ -99,6 +99,42 @@ class _BookingsPageState extends State<BookingsPage> {
     );
   }
 
+  _deleteBooking(String bookingId) async {
+    String? userEmail = FirebaseAuth.instance.currentUser?.email;
+    if (userEmail != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userEmail)
+            .collection('bookings')
+            .doc(bookingId)
+            .delete();
+
+        setState(() {
+          _bookings.removeWhere((document) => document.id == bookingId);
+        });
+
+        // Show SnackBar upon successful deletion
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Booking successfully deleted.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } catch (e) {
+        // Handle errors, e.g., show a snackbar with an error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting booking: $e'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+
+
   Widget _buildBookingCard(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
     // Check if the 'hotelImageURL' field exists and is a list. If not, provide an empty list.
@@ -123,6 +159,10 @@ class _BookingsPageState extends State<BookingsPage> {
                     'Total Cost: ${data['tripCost']} RON\n'
                     'Status: ${data['status']}',
                 style: TextStyle(color: Colors.grey[600]),
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _deleteBooking(document.id),
               ),
             ),
             if (imageUrls.isNotEmpty)
