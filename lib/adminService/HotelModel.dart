@@ -5,9 +5,21 @@ class Hotel {
   final int singleRooms;
   final int doubleRooms;
   final String description;
-  final int pricePerSingleRoomPerNight;
-  final int pricePerDoubleRoomPerNight;
+  final double pricePerSingleRoomPerNight;
+  final double pricePerDoubleRoomPerNight;
   final List<String> imageURLs;
+
+  Hotel({
+    required this.name,
+    required this.county,
+    required this.city,
+    required this.singleRooms,
+    required this.doubleRooms,
+    required this.description,
+    required this.pricePerDoubleRoomPerNight,
+    required this.pricePerSingleRoomPerNight,
+    required this.imageURLs,
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -23,17 +35,7 @@ class Hotel {
     };
   }
 
-  Hotel({
-    required this.name,
-    required this.county,
-    required this.city,
-    required this.singleRooms,
-    required this.doubleRooms,
-    required this.description,
-    required this.pricePerDoubleRoomPerNight,
-    required this.pricePerSingleRoomPerNight,
-    required this.imageURLs,
-  });
+
 
   factory Hotel.fromMap(Map<String, dynamic> data) {
     return Hotel(
@@ -43,8 +45,8 @@ class Hotel {
       singleRooms: data['singleRooms'],
       doubleRooms: data['doubleRooms'],
       description: data['description'],
-      pricePerSingleRoomPerNight: data['pricePerSingleRoomPerNight'] is int ? data['pricePerSingleRoomPerNight'] : int.tryParse(data['pricePerSingleRoomPerNight'].toString()) ?? 0,
-      pricePerDoubleRoomPerNight: data['pricePerDoubleRoomPerNight'] is int ? data['pricePerDoubleRoomPerNight'] : int.tryParse(data['pricePerDoubleRoomPerNight'].toString()) ?? 0,
+      pricePerSingleRoomPerNight: data['pricePerSingleRoomPerNight'] ,
+      pricePerDoubleRoomPerNight: data['pricePerDoubleRoomPerNight'] ,
       imageURLs: List<String>.from(data['imageURLs'] ?? []),
     );
   }

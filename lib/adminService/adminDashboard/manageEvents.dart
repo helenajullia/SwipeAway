@@ -32,8 +32,8 @@ class _EventServiceState extends State<EventService> {
     final String city = _cityController.text;
     final int? singleRooms = int.tryParse(_singleRoomsController.text);
     final int? doubleRooms = int.tryParse(_doubleRoomsController.text);
-    final int? pricePerSingleRooms = int.tryParse(_pricePerSingleRoomsController.text);
-    final int? pricePerDoubleRooms = int.tryParse(_pricePerDoubleRoomsController.text);
+    final double? pricePerSingleRooms = double.tryParse(_pricePerSingleRoomsController.text);
+    final double? pricePerDoubleRooms = double.tryParse(_pricePerDoubleRoomsController.text);
     final String description = _descriptionController.text;
 
     if (singleRooms == null || doubleRooms == null) {
