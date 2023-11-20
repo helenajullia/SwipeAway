@@ -153,7 +153,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         .collection('customLists')
         .get();
 
-    List<Map<String, String>> listNames = listSnapshot.docs
+    List<Map<String, String>> listOptions = listSnapshot.docs
         .map((doc) {
       var data = doc.data() as Map<String, dynamic>?;
       var name = data?['name'];
@@ -166,6 +166,9 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         .cast<Map<String, String>>()
         .toList();
 
+    // Add a predefined "Hotels" list option
+    listOptions.insert(0, {'id': 'hotels_list_id', 'name': 'Hotels'});
+
     // Show the dialog for selecting a list or creating a new one
     String? selectedListId = await showDialog<String>(
       context: context,
@@ -174,7 +177,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           title: Text('Select a List'),
           content: SingleChildScrollView(
             child: Column(
-              children: listNames.map((item) {
+              children: listOptions.map((item) {
                 return ListTile(
                   title: Text(item['name']!),
                   onTap: () {
@@ -200,11 +203,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       },
     );
 
-    // If an existing list is selected, save the hotel
+    // If a list is selected, save the hotel
     if (selectedListId != null) {
       saveHotel(hotel, selectedListId); // Save the hotel to the selected list
     }
   }
+
 
 
 
