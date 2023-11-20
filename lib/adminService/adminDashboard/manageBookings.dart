@@ -81,6 +81,8 @@ class _ManageBookingsState extends State<ManageBookings> {
         int singleRoomsAvailable = hotelData['singleRooms'];
         int doubleRoomsAvailable = hotelData['doubleRooms'];
 
+        print(booking.singleRooms);
+        print(singleRoomsAvailable);
         if (booking.singleRooms > 0) {
           singleRoomsAvailable = max(0, singleRoomsAvailable - booking.singleRooms);
         }

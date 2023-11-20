@@ -183,12 +183,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       ),
       body: widget.searchResults.isNotEmpty
           ? Swiper(
-        controller: swiperController,
-        itemCount: widget.searchResults.length,
-        layout: SwiperLayout.STACK,
-        itemWidth: MediaQuery.of(context).size.width,
-        itemHeight: MediaQuery.of(context).size.height,
-        itemBuilder: (BuildContext context, int index) {
+            controller: swiperController,
+            itemCount: widget.searchResults.length,
+            layout: SwiperLayout.STACK,
+            itemWidth: MediaQuery.of(context).size.width,
+            itemHeight: MediaQuery.of(context).size.height,
+            itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
             onVerticalDragEnd: (details) {
               if (details.primaryVelocity! < 0) { // Swiped Up
