@@ -145,7 +145,6 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
   // This method is invoked when the user decides to save a hotel.
 
-
   Future<void> _promptSelectListOrCreateNew(BuildContext context, Hotel hotel) async {
     // Fetch the list names from Firestore
     QuerySnapshot listSnapshot = await FirebaseFirestore.instance
@@ -206,6 +205,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       saveHotel(hotel, selectedListId); // Save the hotel to the selected list
     }
   }
+
 
 
 
