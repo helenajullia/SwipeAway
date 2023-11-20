@@ -37,13 +37,15 @@ class _HotelCardState extends State<HotelCard> {
       margin: EdgeInsets.all(10),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildImageCarousel(screenSize),
-            _buildHotelDetails(),
-            _buildButtons(),
-          ],
+        child: SingleChildScrollView( // Allows the column to be scrollable
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _buildImageCarousel(screenSize),
+              _buildHotelDetails(),
+              _buildButtons(),
+            ],
+          ),
         ),
       ),
     );
