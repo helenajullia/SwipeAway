@@ -102,10 +102,12 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
   Hotel? selectedHotel;
   // Method to create a new list and return its ID
+
+
   Future<String?> _createNewList(BuildContext context) async {
     TextEditingController listNameController = TextEditingController();
 
-    String? newListId = await showDialog<String>(
+    return await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -139,16 +141,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         );
       },
     );
-
-    if (newListId != null && selectedHotel != null) {
-      saveHotel(selectedHotel!, newListId); // Automatically save the hotel to the new list
-      setState(() {
-        selectedHotel = null; // Reset the selected hotel after saving
-      });
-    }
-
-    return newListId; // This should be the ID of the newly created list
   }
+
   // This method is invoked when the user decides to save a hotel.
 
 
@@ -165,10 +159,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       var data = doc.data() as Map<String, dynamic>?;
       var name = data?['name'];
       if (name is String) {
-        return {
-          'id': doc.id,
-          'name': name,
-        };
+        return {'id': doc.id, 'name': name};
       }
       return null;
     })
@@ -176,8 +167,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         .cast<Map<String, String>>()
         .toList();
 
-    // Show the dialog
-    await showDialog(
+    // Show the dialog for selecting a list or creating a new one
+    String? selectedListId = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -188,9 +179,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                 return ListTile(
                   title: Text(item['name']!),
                   onTap: () {
-                    // Save the hotel to the selected list
-                    saveHotel(hotel, item['id']!);
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(item['id']); // Return the selected list ID
                   },
                 );
               }).toList(),
@@ -199,34 +188,38 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           actions: <Widget>[
             TextButton(
               child: Text('Create New List'),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                _createNewList(context).then((newListId) {
-                  if (newListId != null) {
-                    saveHotel(hotel, newListId);
-                  }
-                });
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the current dialog
+                String? newListId = await _createNewList(context);
+                if (newListId != null) {
+                  saveHotel(hotel, newListId); // Save the hotel to the new list
+                }
               },
             ),
           ],
         );
       },
     );
+
+    // If an existing list is selected, save the hotel
+    if (selectedListId != null) {
+      saveHotel(hotel, selectedListId); // Save the hotel to the selected list
+    }
   }
 
 
+
+
+
   void _onSwipeUp(int index) {
-    // Set the selected hotel
-    setState(() {
-      selectedHotel = widget.searchResults[index];
-    });
+    Hotel selectedHotel = widget.searchResults[index];
 
     // Show dialog to confirm saving the hotel
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Save Hotel"),
-        content: Text("Do you want to save '${widget.searchResults[index].name}' to your list?"),
+        content: Text("Do you want to save '${selectedHotel.name}' to your list?"),
         actions: <Widget>[
           TextButton(
             child: Text("No"),
@@ -238,19 +231,18 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           TextButton(
             child: Text("Save"),
             onPressed: () {
-              // This is where you need to implement the logic to select or create a new list
-              _promptSelectListOrCreateNew(context, widget.searchResults[index]);
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(); // Close the confirmation dialog
+              _promptSelectListOrCreateNew(context, selectedHotel);
             },
           ),
         ],
       ),
     ).then((_) {
-      // This ensures that if the dialog is dismissed by tapping outside of it,
-      // it will still move to the next hotel.
       swiperController.next();
     });
   }
+
+
 
 
   @override
