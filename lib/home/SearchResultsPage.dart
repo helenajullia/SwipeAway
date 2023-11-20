@@ -92,7 +92,15 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
   // Method to prompt the user to select or add a list
 
+  void _onSaveHotel(Hotel hotel) async {
+    String? selectedListId = await _promptSelectList(context);
+    if (selectedListId != null && selectedListId.isNotEmpty) {
+      // Proceed with saving the hotel to the selected list
+      saveHotel(hotel, selectedListId);
+    }
+  }
 
+  Hotel? selectedHotel;
   // Method to create a new list and return its ID
   Future<String?> _createNewList(BuildContext context) async {
     TextEditingController listNameController = TextEditingController();
@@ -131,19 +139,89 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         );
       },
     );
+
+    if (newListId != null && selectedHotel != null) {
+      saveHotel(selectedHotel!, newListId); // Automatically save the hotel to the new list
+      setState(() {
+        selectedHotel = null; // Reset the selected hotel after saving
+      });
+    }
+
     return newListId; // This should be the ID of the newly created list
   }
-
   // This method is invoked when the user decides to save a hotel.
-  void _onSaveHotel(Hotel hotel) async {
-    String? selectedListId = await _promptSelectList(context);
-    if (selectedListId != null && selectedListId.isNotEmpty) {
-      // Proceed with saving the hotel to the selected list
-      saveHotel(hotel, selectedListId);
-    }
+
+
+  Future<void> _promptSelectListOrCreateNew(BuildContext context, Hotel hotel) async {
+    // Fetch the list names from Firestore
+    QuerySnapshot listSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('customLists')
+        .get();
+
+    List<Map<String, String>> listNames = listSnapshot.docs
+        .map((doc) {
+      var data = doc.data() as Map<String, dynamic>?;
+      var name = data?['name'];
+      if (name is String) {
+        return {
+          'id': doc.id,
+          'name': name,
+        };
+      }
+      return null;
+    })
+        .where((item) => item != null)
+        .cast<Map<String, String>>()
+        .toList();
+
+    // Show the dialog
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select a List'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: listNames.map((item) {
+                return ListTile(
+                  title: Text(item['name']!),
+                  onTap: () {
+                    // Save the hotel to the selected list
+                    saveHotel(hotel, item['id']!);
+                    Navigator.of(context).pop();
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Create New List'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _createNewList(context).then((newListId) {
+                  if (newListId != null) {
+                    saveHotel(hotel, newListId);
+                  }
+                });
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
+
   void _onSwipeUp(int index) {
+    // Set the selected hotel
+    setState(() {
+      selectedHotel = widget.searchResults[index];
+    });
+
+    // Show dialog to confirm saving the hotel
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -160,8 +238,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
           TextButton(
             child: Text("Save"),
             onPressed: () {
-              // Here you should pass the listId as well. Assuming you have it available.
-              _onSaveHotel(widget.searchResults[index]);
+              // This is where you need to implement the logic to select or create a new list
+              _promptSelectListOrCreateNew(context, widget.searchResults[index]);
               Navigator.of(context).pop();
             },
           ),
@@ -173,6 +251,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
       swiperController.next();
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
