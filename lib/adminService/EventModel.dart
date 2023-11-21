@@ -37,14 +37,14 @@ class Event {
 
   factory Event.fromMap(Map<String, dynamic> data) {
     return Event(
-      name: data['name'],
-      county: data['county'],
-      city: data['city'],
-      singleRooms: data['singleRooms'],
-      doubleRooms: data['doubleRooms'],
-      description: data['description'],
-      pricePerSingleRoomPerNight: data['pricePerSingleRoomPerNight'] is double ? data['pricePerSingleRoomPerNight'] : double.tryParse(data['pricePerSingleRoomPerNight'].toString()) ?? 0,
-      pricePerDoubleRoomPerNight: data['pricePerDoubleRoomPerNight'] is double ? data['pricePerDoubleRoomPerNight'] : double.tryParse(data['pricePerDoubleRoomPerNight'].toString()) ?? 0,
+      name: data['name'] as String? ?? 'Unknown Name',
+      county: data['county'] as String? ?? 'Unknown County',
+      city: data['city'] as String? ?? 'Unknown City',
+      singleRooms: data['singleRooms'] as int? ?? 0,
+      doubleRooms: data['doubleRooms'] as int? ?? 0,
+      description: data['description'] as String? ?? 'No Description',
+      pricePerSingleRoomPerNight: (data['pricePerSingleRoomPerNight'] as num?)?.toDouble() ?? 0.0,
+      pricePerDoubleRoomPerNight: (data['pricePerDoubleRoomPerNight'] as num?)?.toDouble() ?? 0.0,
       imageURLs: List<String>.from(data['imageURLs'] ?? []),
     );
   }

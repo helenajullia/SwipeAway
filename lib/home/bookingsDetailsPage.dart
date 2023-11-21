@@ -87,7 +87,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         ],
       ),
     );
-}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -252,35 +252,35 @@ class RoomSelector extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-        Text(
-        title,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Colors.black.withOpacity(0.7),
-        ),
-      ),
-      Row(
-          children: [
-      IconButton(
-      icon: Icon(Icons.remove_circle_outline),
-      color: count > 0 ? Colors.black : Colors.grey,
-      onPressed: count > 0 ? onDecrement : null,
-    ),
-            Text(
-              '$count',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black.withOpacity(0.7),
+            ),
+          ),
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.remove_circle_outline),
+                color: count > 0 ? Colors.black : Colors.grey,
+                onPressed: count > 0 ? onDecrement : null,
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.add_circle_outline),
-              color: Colors.black,
-              onPressed: onIncrement,
-            ),
-          ],
-      ),
+              Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.add_circle_outline),
+                color: Colors.black,
+                onPressed: onIncrement,
+              ),
+            ],
+          ),
         ],
       ),
     );

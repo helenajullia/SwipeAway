@@ -37,18 +37,18 @@ class Booking {
     }
 
     return Booking(
-      hotelId: data['hotelId'] as String? ?? 'Unknown',
-      checkInDate: (data['checkInDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      checkOutDate: (data['checkOutDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      status: data['status'] as String? ?? 'Unknown',
-      firstName: firstName,
-      lastName: lastName,
-      docId: docId,
-      email: data['email'] as String? ?? 'Unknown',
-      singleRooms: (data['singleRooms']),
-      doubleRooms: (data['doubleRooms']),
-      hotelImageURL: imageUrls, // Using the safely extracted list
-      tripCost: (data['tripCost'])
+        hotelId: data['hotelId'] as String? ?? 'Unknown',
+        checkInDate: (data['checkInDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        checkOutDate: (data['checkOutDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        status: data['status'] as String? ?? 'Unknown',
+        firstName: firstName,
+        lastName: lastName,
+        docId: docId,
+        email: data['email'] as String? ?? 'Unknown',
+        singleRooms: (data['singleRooms']),
+        doubleRooms: (data['doubleRooms']),
+        hotelImageURL: imageUrls, // Using the safely extracted list
+        tripCost: (data['tripCost'])
     );
   }
 }

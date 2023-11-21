@@ -281,6 +281,7 @@ class _SavedPageState extends State<SavedPage> {
 
   void fetchSavedHotelsAndEvents() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
+
     if (currentUser != null) {
       try {
         var hotelSnapshot = await FirebaseFirestore.instance
@@ -290,6 +291,13 @@ class _SavedPageState extends State<SavedPage> {
             .get();
         var fetchedHotels = hotelSnapshot.docs.map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>)).toList();
 
+        // setState(() {
+        //   savedHotels = fetchedHotels;
+        //   filteredHotels = List.from(savedHotels);
+        // });
+
+
+
         var eventSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(currentUser.uid)
@@ -297,12 +305,7 @@ class _SavedPageState extends State<SavedPage> {
             .get();
         var fetchedEvents = eventSnapshot.docs.map((doc) => Event.fromMap(doc.data() as Map<String, dynamic>)).toList();
 
-        setState(() {
-          savedHotels = fetchedHotels;
-          filteredHotels = List.from(savedHotels);
-          savedEvents = fetchedEvents;
-          filteredEvents = List.from(savedEvents);
-        });
+
 
         var customListsSnapshot = await FirebaseFirestore.instance
             .collection('users')
@@ -313,11 +316,20 @@ class _SavedPageState extends State<SavedPage> {
         customListNames.clear();
         listNameToIdMap.clear();
 
-        for (var doc in customListsSnapshot.docs) {
-          String listName = doc.data()['name'] as String;
-          customListNames.add(listName);
-          listNameToIdMap[listName] = doc.id; // Store the list name to ID mapping
-        }
+
+
+
+        setState(() {
+          savedHotels = fetchedHotels;
+          filteredHotels = List.from(savedHotels);
+          savedEvents = fetchedEvents;
+          filteredEvents = List.from(savedEvents);
+          for (var doc in customListsSnapshot.docs) {
+            String listName = doc.data()['name'] as String;
+            customListNames.add(listName);
+            listNameToIdMap[listName] = doc.id; // Store the list name to ID mapping
+          }
+        });
 
       } catch (e) {
         print('Error fetching saved items: $e');
@@ -328,13 +340,11 @@ class _SavedPageState extends State<SavedPage> {
 
   Future<List<Hotel>> fetchHotelsFromList(String listId) async {
     try {
-      // Ensure the user ID is valid.
       String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
       if (userId.isEmpty) {
         throw Exception("User not logged in");
       }
 
-      // Fetch the hotel data from the specified list.
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -343,19 +353,21 @@ class _SavedPageState extends State<SavedPage> {
           .collection('items')
           .get();
 
-      // Convert the query snapshot into a list of Hotels.
+     // print("Fetched data for list $listId: ${snapshot.docs.map((doc) => doc.data()).toList()}");
+
       List<Hotel> hotels = snapshot.docs
           .map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
+      print("fetched them");
+
       return hotels;
+
     } catch (e) {
-      // Handle any errors that occur during the fetch operation.
-      print(e); // Consider logging the error or using a more sophisticated error handling strategy.
+      print('Error fetching hotels from list $listId: $e');
       return []; // Return an empty list on error.
     }
   }
-
   Future<void> deleteCustomList(String listId) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
     await FirebaseFirestore.instance
@@ -366,6 +378,16 @@ class _SavedPageState extends State<SavedPage> {
         .delete();
     // Optionally, refresh your state or UI after deletion.
   }
+
+  // Future<void> deletePredefinedList(String listId) async {
+  //   String userId = FirebaseAuth.instance.currentUser!.uid;
+  //   await FirebaseFirestore.instance
+  //       .collection('users')
+  //       .collection('savedHotels')
+  //       .doc(listId)
+  //       .delete();
+  //   // Optionally, refresh your state or UI after deletion.
+  // }
 
   Future<void> deleteHotelFromList(String hotelName, String listId) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
@@ -422,9 +444,13 @@ class _SavedPageState extends State<SavedPage> {
       background: Container(color: Colors.red, alignment: Alignment.centerLeft, padding: EdgeInsets.only(left: 20), child: Icon(Icons.delete, color: Colors.white)),
       secondaryBackground: Container(color: Colors.red, alignment: Alignment.centerRight, padding: EdgeInsets.only(right: 20), child: Icon(Icons.delete, color: Colors.white)),
       onDismissed: (direction) {
-        // Add your logic to delete the entire list here
         deleteCustomList(listId);
-        // Optionally show a snackbar or refresh the UI
+        // Refresh the UI by removing the list from the state maps and calling setState
+        setState(() {
+          hotelsByList.remove(listId);
+          customListNames.removeWhere((name) => listNameToIdMap[name] == listId);
+          listNameToIdMap.removeWhere((name, id) => id == listId);
+        });
       },
       child: ExpansionTile(
         title: Text(title, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
@@ -437,24 +463,31 @@ class _SavedPageState extends State<SavedPage> {
                 return Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (snapshot.hasData) {
+              } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                 List<Hotel> hotels = snapshot.data!;
-                return Column(
-                  children: hotels.map((hotel) => Dismissible(
-                    key: Key(hotel.name),
-                    background: Container(color: Colors.red, alignment: Alignment.centerLeft, padding: EdgeInsets.only(left: 20), child: Icon(Icons.delete, color: Colors.white)),
-                    secondaryBackground: Container(color: Colors.red, alignment: Alignment.centerRight, padding: EdgeInsets.only(right: 20), child: Icon(Icons.delete, color: Colors.white)),
-                    onDismissed: (direction) {
-                      // Add your logic to delete the individual hotel here
-                      deleteHotelFromList(hotel.name, listId);
-                      // Optionally show a snackbar or refresh the UI
-                    },
-                    child: HotelCard(
-                      hotel: hotel,
-                      onSwipeLeft: () {}, // You can implement swipe left action if needed
-                      onSwipeRight: () {}, // You can implement swipe right action if needed
-                    ),
-                  )).toList(),
+                return ListView.builder(
+                  physics: NeverScrollableScrollPhysics(), // to disable ListView's scrolling
+                  shrinkWrap: true, // to make ListView to take space as per its children
+                  itemCount: hotels.length,
+                  itemBuilder: (context, index) {
+                    return Dismissible(
+                      key: Key(hotels[index].name),
+                      background: Container(color: Colors.red, alignment: Alignment.centerLeft, padding: EdgeInsets.only(left: 20), child: Icon(Icons.delete, color: Colors.white)),
+                      secondaryBackground: Container(color: Colors.red, alignment: Alignment.centerRight, padding: EdgeInsets.only(right: 20), child: Icon(Icons.delete, color: Colors.white)),
+                      onDismissed: (direction) {
+                        deleteHotelFromList(hotels[index].name, listId);
+                        // Refresh the UI by removing the hotel from the list and calling setState
+                        setState(() {
+                          hotels.removeAt(index);
+                        });
+                      },
+                      child: HotelCard(
+                        hotel: hotels[index],
+                        onSwipeLeft: () {}, // Implement swipe left action if needed
+                        onSwipeRight: () {}, // Implement swipe right action if needed
+                      ),
+                    );
+                  },
                 );
               } else {
                 return Center(child: Text('No hotels found in this list'));
@@ -471,27 +504,39 @@ class _SavedPageState extends State<SavedPage> {
     return ExpansionTile(
       title: Text(title, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
       backgroundColor: Colors.white12,
-      children: items.map((item) {
-        return Dismissible(
-          key: Key(item is Hotel ? item.name : item.name), // Use the 'name' as the unique identifier
-          background: Container(color: Colors.red, alignment: Alignment.centerLeft, padding: EdgeInsets.only(left: 20), child: Icon(Icons.delete, color: Colors.white)),
-          secondaryBackground: Container(color: Colors.red, alignment: Alignment.centerRight, padding: EdgeInsets.only(right: 20), child: Icon(Icons.delete, color: Colors.white)),
-          onDismissed: (direction) {
-            // Logic to delete the individual item
-            if (item is Hotel) {
-              deleteHotel(item.name);
-            } else if (item is Event) {
-              deleteEvent(item.name);
-            }
-            // Optionally show a snackbar or refresh the UI
+      children: <Widget>[
+        ListView.builder(
+          physics: NeverScrollableScrollPhysics(), // to disable ListView's scrolling
+          shrinkWrap: true, // to make ListView to take space as per its children
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            var item = items[index];
+            return Dismissible(
+              key: Key(item.name), // Use the 'name' as the unique identifier
+              background: Container(color: Colors.red, alignment: Alignment.centerLeft, padding: EdgeInsets.only(left: 20), child: Icon(Icons.delete, color: Colors.white)),
+              secondaryBackground: Container(color: Colors.red, alignment: Alignment.centerRight, padding: EdgeInsets.only(right: 20), child: Icon(Icons.delete, color: Colors.white)),
+              onDismissed: (direction) {
+                // Logic to delete the individual item
+                if (item is Hotel) {
+                  deleteHotel(item.name);
+                  setState(() {
+                    items.removeAt(index); // Update the list after item is dismissed
+                  });
+                } else if (item is Event) {
+                  deleteEvent(item.name);
+                }
+                // Optionally show a snackbar or refresh the UI
+              },
+              child: item is Hotel
+                  ? HotelCard(hotel: item, onSwipeLeft: () {}, onSwipeRight: () {})
+                  : EventCard(event: item, onSwipeLeft: () {}, onSwipeRight: () {}),
+            );
           },
-          child: item is Hotel
-              ? HotelCard(hotel: item, onSwipeLeft: () {}, onSwipeRight: () {})
-              : EventCard(event: item, onSwipeLeft: () {}, onSwipeRight: () {}),
-        );
-      }).toList(),
+        ),
+      ],
     );
   }
+
 
 
 
@@ -519,10 +564,9 @@ class _SavedPageState extends State<SavedPage> {
                   ),
                 ),
             children: [
-              buildExpansionTile('Hotels', filteredHotels),
-
               buildExpansionTile('Events', filteredEvents),
-
+              buildExpansionTile('Hotels', filteredHotels),
+             // buildExpansionTile('Hotels', savedHotels),
               ...customListNames.map((listName) {
                 String? listId = getListIdByName(listName);
                 if (listId != null) {
