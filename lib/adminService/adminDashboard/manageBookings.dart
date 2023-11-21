@@ -179,7 +179,7 @@ class _ManageBookingsState extends State<ManageBookings> {
                 ListTile(
                   title: Text("${booking.firstName} ${booking.lastName}"),
                   subtitle: Text(
-                      "Hotel ID: ${booking.hotelId}\n"
+                          "ID: ${booking.hotelId}\n"
                           "Status: ${booking.status}\n"
                           "Check-in Date: ${booking.checkInDate}\n"
                           "Check-out Date: ${booking.checkOutDate}\n"
@@ -190,7 +190,7 @@ class _ManageBookingsState extends State<ManageBookings> {
                   ),
                   trailing: buildStatusDropdown(booking),
                 ),
-                // Existing code for displaying hotel images
+
                 if (booking.hotelImageURL.isNotEmpty)
                   buildHotelImages(booking.hotelImageURL),
               ],
