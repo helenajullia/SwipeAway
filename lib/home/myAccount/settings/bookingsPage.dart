@@ -84,7 +84,7 @@ class _BookingsPageState extends State<BookingsPage> {
 
   Widget _buildBookingList() {
     return ListView.builder(
-      itemCount: _bookings.length+1,
+      itemCount: _bookings.length + 1,
       itemBuilder: (context, index) {
         if (index < _bookings.length) {
           return _bookings[index].data() != null
@@ -134,11 +134,16 @@ class _BookingsPageState extends State<BookingsPage> {
   }
 
 
-
   Widget _buildBookingCard(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+
     // Check if the 'hotelImageURL' field exists and is a list. If not, provide an empty list.
-    List<String> imageUrls = data['hotelImageURL'] is List ? List<String>.from(data['hotelImageURL']) : [];
+    List<String> hotelImageUrls = data['hotelImageURL'] is List ? List<
+        String>.from(data['hotelImageURL']) : [];
+
+    // Similarly, check for 'eventImageURL' and provide an empty list if it does not exist
+    List<String> eventImageUrls = data['eventImageURL'] is List ? List<
+        String>.from(data['eventImageURL']) : [];
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -165,39 +170,52 @@ class _BookingsPageState extends State<BookingsPage> {
                 onPressed: () => _deleteBooking(document.id),
               ),
             ),
-            if (imageUrls.isNotEmpty)
-              CarouselSlider(
-                options: CarouselOptions(
-                  height: 200.0,
-                  enlargeCenterPage: true,
-                  autoPlay: true,
-                  aspectRatio: 16 / 9,
-                  autoPlayCurve: Curves.fastOutSlowIn,
-                  enableInfiniteScroll: true,
-                  autoPlayAnimationDuration: Duration(milliseconds: 800),
-                  viewportFraction: 0.8,
-                ),
-                items: imageUrls.map((url) {
-                  return Builder(
-                    builder: (BuildContext context) {
-                      return Container(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width,
-                        margin: EdgeInsets.symmetric(horizontal: 5.0),
-                        decoration: BoxDecoration(
-                          color: Colors.amber,
-                        ),
-                        child: Image.network(url, fit: BoxFit.cover),
-                      );
-                    },
-                  );
-                }).toList(),
-              ),
+            // Displaying hotel images if they exist
+            if (hotelImageUrls.isNotEmpty)
+              _buildImageCarousel(hotelImageUrls),
+            // Displaying event images if they exist
+            if (eventImageUrls.isNotEmpty)
+              _buildImageCarousel(eventImageUrls),
           ],
         ),
       ),
+    );
+  }
+
+// Helper method to create an image carousel
+  Widget _buildImageCarousel(List<String> imageUrls) {
+    return CarouselSlider(
+      options: CarouselOptions(
+        height: 200.0,
+        enlargeCenterPage: true,
+        autoPlay: true,
+        aspectRatio: 16 / 9,
+        autoPlayCurve: Curves.fastOutSlowIn,
+        enableInfiniteScroll: true,
+        autoPlayAnimationDuration: Duration(milliseconds: 800),
+        viewportFraction: 0.8,
+      ),
+      items: imageUrls.map((url) {
+        return Builder(
+          builder: (BuildContext context) {
+            return Container(
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
+              margin: EdgeInsets.symmetric(horizontal: 5.0),
+              decoration: BoxDecoration(
+                color: Colors.amber,
+              ),
+              child: Image.network(url, fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Text('Image not available'); // Placeholder for error
+                },
+              ),
+            );
+          },
+        );
+      }).toList(),
     );
   }
 }
