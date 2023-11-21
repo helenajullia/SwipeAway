@@ -1,4 +1,6 @@
-class Hotel {
+import 'Item.dart';
+
+class Hotel extends Item {
   final String name;
   final String county;
   final String city;
