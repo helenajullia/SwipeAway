@@ -353,7 +353,7 @@ class _SavedPageState extends State<SavedPage> {
           .collection('items')
           .get();
 
-     // print("Fetched data for list $listId: ${snapshot.docs.map((doc) => doc.data()).toList()}");
+      // print("Fetched data for list $listId: ${snapshot.docs.map((doc) => doc.data()).toList()}");
 
       List<Hotel> hotels = snapshot.docs
           .map((doc) => Hotel.fromMap(doc.data() as Map<String, dynamic>))
@@ -441,10 +441,20 @@ class _SavedPageState extends State<SavedPage> {
   Widget buildExpansionTileList(String title, String listId) {
     return Dismissible(
       key: Key(listId),
-      background: Container(color: Colors.red, alignment: Alignment.centerLeft, padding: EdgeInsets.only(left: 20), child: Icon(Icons.delete, color: Colors.white)),
-      secondaryBackground: Container(color: Colors.red, alignment: Alignment.centerRight, padding: EdgeInsets.only(right: 20), child: Icon(Icons.delete, color: Colors.white)),
-      onDismissed: (direction) {
-        deleteCustomList(listId);
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.only(left: 20),
+        child: Icon(Icons.delete, color: Colors.white),
+      ),
+      secondaryBackground: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: EdgeInsets.only(right: 20),
+        child: Icon(Icons.delete, color: Colors.white),
+      ),
+      onDismissed: (direction) async {
+        await deleteCustomList(listId);
         // Refresh the UI by removing the list from the state maps and calling setState
         setState(() {
           hotelsByList.remove(listId);
@@ -466,25 +476,28 @@ class _SavedPageState extends State<SavedPage> {
               } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                 List<Hotel> hotels = snapshot.data!;
                 return ListView.builder(
-                  physics: NeverScrollableScrollPhysics(), // to disable ListView's scrolling
-                  shrinkWrap: true, // to make ListView to take space as per its children
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
                   itemCount: hotels.length,
                   itemBuilder: (context, index) {
                     return Dismissible(
                       key: Key(hotels[index].name),
                       background: Container(color: Colors.red, alignment: Alignment.centerLeft, padding: EdgeInsets.only(left: 20), child: Icon(Icons.delete, color: Colors.white)),
                       secondaryBackground: Container(color: Colors.red, alignment: Alignment.centerRight, padding: EdgeInsets.only(right: 20), child: Icon(Icons.delete, color: Colors.white)),
-                      onDismissed: (direction) {
-                        deleteHotelFromList(hotels[index].name, listId);
-                        // Refresh the UI by removing the hotel from the list and calling setState
-                        setState(() {
-                          hotels.removeAt(index);
-                        });
+                      onDismissed: (direction) async {
+                        await deleteHotelFromList(hotels[index].name, listId);
+                        // Remove the dismissed item from the list model
+                        hotels.removeAt(index);
+                        // Then show a snackbar.
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${hotels[index].name} deleted")));
+                        // Optionally, refresh the list to fetch the updated data
+                        // You might need to adjust this if your state management is different
+                        setState(() {});
                       },
                       child: HotelCard(
                         hotel: hotels[index],
-                        onSwipeLeft: () {}, // Implement swipe left action if needed
-                        onSwipeRight: () {}, // Implement swipe right action if needed
+                        onSwipeLeft: () {},
+                        onSwipeRight: () {},
                       ),
                     );
                   },
@@ -498,6 +511,7 @@ class _SavedPageState extends State<SavedPage> {
       ),
     );
   }
+
 
 
   Widget buildExpansionTile(String title, List<dynamic> items) {
@@ -566,7 +580,7 @@ class _SavedPageState extends State<SavedPage> {
             children: [
               buildExpansionTile('Events', filteredEvents),
               buildExpansionTile('Hotels', filteredHotels),
-             // buildExpansionTile('Hotels', savedHotels),
+              // buildExpansionTile('Hotels', savedHotels),
               ...customListNames.map((listName) {
                 String? listId = getListIdByName(listName);
                 if (listId != null) {
