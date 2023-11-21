@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
+import '../home/bookingsDetailsPageEvent.dart';
 import 'EventModel.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -185,7 +186,7 @@ class _EventCardState extends State<EventCard> {
             side: BorderSide(color: Colors.white, width: 2),
             minimumSize: Size(180, 40),
           ),
-          onPressed: _handleBookNow,
+          onPressed: () => _handleBookNow(widget.event),
           child: Text(
             'Book Now',
             style: GoogleFonts.roboto(),
@@ -195,10 +196,11 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  void _handleBookNow() {
-
+  void _handleBookNow(Event event) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => BookingDetailsPageEvent(event:event),
+    ));
   }
-
   void _showPriceDialog() {
     showDialog(
       context: context,

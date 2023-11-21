@@ -579,7 +579,7 @@ class _SavedPageState extends State<SavedPage> {
                 ),
             children: [
               buildExpansionTile('Events', filteredEvents),
-              buildExpansionTile('Hotels', filteredHotels),
+              //buildExpansionTile('Hotels', filteredHotels),
               // buildExpansionTile('Hotels', savedHotels),
               ...customListNames.map((listName) {
                 String? listId = getListIdByName(listName);

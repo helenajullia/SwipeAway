@@ -1,4 +1,6 @@
-class Event {
+import 'Item.dart';
+
+class Event extends Item {
   final String name;
   final String county;
   final String city;
