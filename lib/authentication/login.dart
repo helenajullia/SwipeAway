@@ -5,8 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:swipe_away/authentication/forgot_thePassword.dart';
 import 'package:swipe_away/authentication/SignUp.dart';
 import 'package:swipe_away/home/search_page.dart';
-
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import '../adminService/adminInterface.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -22,6 +23,48 @@ class _LoginPageState extends State<LoginPage> {
     passwordController.dispose();
     super.dispose();
   }
+
+  Future<void> signInWithFacebook() async {
+    try {
+      // Trigger the Facebook Sign-In process
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      // Check the status of the login process
+      if (result.status == LoginStatus.success) {
+        // User is logged in
+        final AccessToken accessToken = result.accessToken!;
+
+        // Here you can use accessToken as needed
+        // For example, you can now sign in to Firebase with this token
+        // or use it to fetch additional information from Facebook
+
+        // Navigate to your desired page or handle the login success
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => SearchPage()));
+      } else {
+        // Handle different cases like cancellation, or error
+        print(result.status);
+        print(result.message);
+
+        // Show a snackbar or any other UI to inform the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Facebook login failed: ${result.message}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // General error handling
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("An error occurred: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> signIn() async {
     try {
       final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
@@ -169,6 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+
               Center(
                 child: TextButton(
                   onPressed: () {
@@ -181,6 +225,27 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 15.0),
+
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    signInWithFacebook();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // Facebook color
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  child: Text(
+                    'Login with Facebook',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15.0),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

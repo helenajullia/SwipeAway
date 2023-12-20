@@ -11,10 +11,24 @@ import 'introScreen/intro_page.dart';
 import 'dart:async';
 import 'firebase_options.dart';
 import 'package:swipe_away/home/myAccount/settings/themePage.dart'; // Make sure to create this file with light and dark theme data
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: firebaseOptions);
+
+  // Check if the app is running on Web
+  if (kIsWeb) {
+    // Initialize the Facebook JavaScript SDK
+    await FacebookAuth.i.webAndDesktopInitialize(
+      appId: "1394647538103458", // Replace with your actual Facebook App ID
+      cookie: true,
+      xfbml: true,
+      version: "v15.0",
+    );
+  }
+
   runApp(MyApp());
   Get.lazyPut(() => NotificationController());
 }
