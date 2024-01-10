@@ -375,17 +375,20 @@ class _SearchPageState extends State<SearchPage> {
     // Check if dark mode is enabled
     bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
 
+
     return TextField(
       readOnly: true,
       onTap: onTap,
       decoration: InputDecoration(
-        hintText: date?.toLocal().toString().split(' ')[0] ?? hint,
+        labelText: date == null ? hint : null, // Use hint as label if date is not selected
+        hintText: date?.toLocal().toString().split(' ')[0] ?? hint, // Show selected date as hint
         filled: true,
         fillColor: Colors.white.withOpacity(0.9),
         suffixIcon: Icon(Icons.calendar_today, color: isDarkMode ? Colors.white : Colors.black),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: isDarkMode ? Colors.white : Colors.black)),
-        hintStyle: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+        hintStyle: TextStyle(color: isDarkMode ? Colors.black : Colors.black),
+        labelStyle: TextStyle(color: Colors.black), // Ensure label text is black
       ),
     );
   }

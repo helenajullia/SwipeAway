@@ -5,6 +5,7 @@
   },
   "hosting": {
     "public": "build/web",
+    "site": "proiectswipeaway",
     "ignore": [
       "firebase.json",
       "**/.*",
