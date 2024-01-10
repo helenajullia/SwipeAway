@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
@@ -62,10 +63,12 @@ class _HotelCardState extends State<HotelCard> {
           itemBuilder: (BuildContext context, int index) {
             return ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
-              child: Image.network(
-                widget.hotel.imageURLs[index],
+              child: CachedNetworkImage(
+                imageUrl: widget.hotel.imageURLs[index],
                 fit: BoxFit.cover,
-              ),
+                placeholder: (context, url) => CircularProgressIndicator(),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+            ),
             );
           },
           itemCount: widget.hotel.imageURLs.length,
