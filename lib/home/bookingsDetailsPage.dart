@@ -106,9 +106,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               onSelectDate: (DateTime date) {
                 setState(() {
                   checkInDate = date;
-                  // Reset checkOutDate if it's before the new checkInDate
                   if (checkOutDate != null && checkOutDate!.isBefore(checkInDate!)) {
-                    checkOutDate = null;
+                    checkOutDate = null; // Reset checkOutDate if it's before the new checkInDate
                   }
                 });
               },
@@ -116,7 +115,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             DateSelector(
               title: 'Check-out Date',
               selectedDate: checkOutDate,
-              firstSelectableDate: checkInDate?.add(Duration(days: 1)),
+              checkInDate: checkInDate, // Make sure to pass checkInDate here
               onSelectDate: (DateTime date) {
                 setState(() {
                   checkOutDate = date;
@@ -169,13 +168,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 class DateSelector extends StatelessWidget {
   final String title;
   final DateTime? selectedDate;
-  final DateTime? firstSelectableDate;
+  final DateTime? checkInDate; // Make sure this is defined in the class
   final ValueChanged<DateTime> onSelectDate;
 
   DateSelector({
     required this.title,
     required this.selectedDate,
-    this.firstSelectableDate,
+    this.checkInDate, // Remove the 'required' keyword if checkInDate can be null
     required this.onSelectDate,
   });
 
@@ -190,13 +189,20 @@ class DateSelector extends StatelessWidget {
       ),
       trailing: Icon(Icons.calendar_today),
       onTap: () async {
-        final DateTime? picked = await showCustomDatePicker(context, selectedDate, firstSelectableDate);
+        DateTime firstDate = checkInDate?.add(Duration(days: 1)) ?? DateTime.now(); // Use the checkInDate if provided
+        final DateTime? picked = await showDatePicker(
+          context: context,
+          initialDate: selectedDate ?? firstDate,
+          firstDate: firstDate,
+          lastDate: DateTime(2030),
+        );
         if (picked != null && picked != selectedDate) {
           onSelectDate(picked);
         }
       },
     );
   }
+}
 
   Future<DateTime?> showCustomDatePicker(BuildContext context, DateTime? selectedDate, DateTime? firstSelectableDate) {
     return showDatePicker(
@@ -217,7 +223,7 @@ class DateSelector extends StatelessWidget {
       },
     );
   }
-}
+
 
 class RoomSelector extends StatelessWidget {
   final String title;

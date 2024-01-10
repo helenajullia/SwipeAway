@@ -106,9 +106,8 @@ class _BookingDetailsPageStateEvent extends State<BookingDetailsPageEvent> {
               onSelectDate: (DateTime date) {
                 setState(() {
                   checkInDate = date;
-                  // Reset checkOutDate if it's before the new checkInDate
                   if (checkOutDate != null && checkOutDate!.isBefore(checkInDate!)) {
-                    checkOutDate = null;
+                    checkOutDate = null; // Reset checkOutDate if it's before the new checkInDate
                   }
                 });
               },
@@ -116,13 +115,14 @@ class _BookingDetailsPageStateEvent extends State<BookingDetailsPageEvent> {
             DateSelector(
               title: 'Check-out Date',
               selectedDate: checkOutDate,
-              firstSelectableDate: checkInDate?.add(Duration(days: 1)),
+              firstSelectableDate: checkInDate?.add(Duration(days: 1)), // This should be the day after checkInDate
               onSelectDate: (DateTime date) {
                 setState(() {
                   checkOutDate = date;
                 });
               },
             ),
+
 
             RoomSelector(
               title: 'Single Rooms',
@@ -199,10 +199,16 @@ class DateSelector extends StatelessWidget {
   }
 
   Future<DateTime?> showCustomDatePicker(BuildContext context, DateTime? selectedDate, DateTime? firstSelectableDate) {
+    // Ensure firstSelectableDate is not before today's date
+    DateTime firstDate = firstSelectableDate ?? DateTime.now();
+    if (firstDate.isBefore(DateTime.now())) {
+      firstDate = DateTime.now();
+    }
+
     return showDatePicker(
       context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: firstSelectableDate ?? DateTime.now(),
+      initialDate: selectedDate ?? firstDate,
+      firstDate: firstDate,
       lastDate: DateTime(2030),
       builder: (BuildContext context, Widget? child) {
         return Theme(
@@ -217,6 +223,7 @@ class DateSelector extends StatelessWidget {
       },
     );
   }
+
 }
 
 class RoomSelector extends StatelessWidget {
