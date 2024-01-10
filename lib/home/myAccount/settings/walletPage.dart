@@ -1,7 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+
+
+
+// class CardModel {
+//   String id;
+//   String cardNumber;
+//   String cardHolder;
+//   String expiryDate;
+//   String cvv;
+//
+//   CardModel({
+//     required this.id,
+//     required this.cardNumber,
+//     required this.cardHolder,
+//     required this.expiryDate,
+//     required this.cvv,
+//   });
+//
+//   factory CardModel.fromDocumentSnapshot(DocumentSnapshot doc) {
+//     return CardModel(
+//       id: doc.id,
+//       cardNumber: doc['cardNumber'],
+//       cardHolder: doc['cardHolder'],
+//       expiryDate: doc['expiryDate'],
+//       cvv: doc['cvv'],
+//     );
+//   }
+// }
 
 class WalletPage extends StatefulWidget {
   @override
@@ -16,6 +46,8 @@ class _WalletPageState extends State<WalletPage> {
   final _cvvController = TextEditingController();
   List<CardModel> _cards = [];
   bool _isLoading = true;
+
+
 
   @override
   void initState() {
@@ -176,9 +208,17 @@ class _WalletPageState extends State<WalletPage> {
                 controller: _cardNumberController,
                 decoration: InputDecoration(labelText: 'Card Number'),
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(19),
+                  CardNumberInputFormatter(),
+                ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter card number';
+                  }
+                  if (value.length < 19) { // 16 digits + 3 spaces
+                    return 'Incomplete card number';
                   }
                   return null;
                 },
@@ -196,9 +236,18 @@ class _WalletPageState extends State<WalletPage> {
               TextFormField(
                 controller: _expiryDateController,
                 decoration: InputDecoration(labelText: 'Expiry Date'),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(5),
+                  ExpiryDateInputFormatter(),
+                ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter expiry date';
+                  }
+                  if (value.length < 5) { // 'MM/YY'
+                    return 'Incomplete expiry date';
                   }
                   return null;
                 },
@@ -207,6 +256,7 @@ class _WalletPageState extends State<WalletPage> {
                 controller: _cvvController,
                 decoration: InputDecoration(labelText: 'CVV'),
                 obscureText: true,
+                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter CVV';
@@ -226,7 +276,13 @@ class _WalletPageState extends State<WalletPage> {
           ),
           TextButton(
             child: Text('Add'),
-            onPressed: _addCard, // Call the method to handle adding card
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                // Call method to add card to Firestore
+                // Clear the text fields and close the dialog
+                Navigator.of(context).pop();
+              }
+            },
           ),
         ],
       ),
@@ -303,6 +359,38 @@ class _WalletPageState extends State<WalletPage> {
     );
   }
 }
+
+// Custom formatter for card number with spaces every 4 digits
+class CardNumberInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String newText = newValue.text.replaceAll(RegExp(r'\s+\b|\b\s'), '');
+    newText = newText.replaceAllMapped(RegExp(r'(\d{4})(?=\d)'), (Match m) => '${m[1]} ');
+    return newValue.copyWith(text: newText, selection: updateCursorPosition(newText));
+  }
+
+  TextSelection updateCursorPosition(String text) {
+    return TextSelection.fromPosition(TextPosition(offset: text.length));
+  }
+}
+
+// Custom formatter for the expiry date in the format MM/YY
+class ExpiryDateInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String newText = newValue.text.replaceAll(RegExp(r'\s+\b|\b\s'), '');
+    if (newText.length > 2) {
+      newText = newText.substring(0, 2) + '/' + newText.substring(2);
+    }
+    return newValue.copyWith(text: newText, selection: updateCursorPosition(newText));
+  }
+
+  TextSelection updateCursorPosition(String text) {
+    return TextSelection.fromPosition(TextPosition(offset: text.length));
+  }
+}
+
+// A placeholder CardModel class (replace with your actual CardModel class)
 class CardModel {
   String id;
   String cardNumber;
@@ -328,4 +416,6 @@ class CardModel {
     );
   }
 }
+
+
 
