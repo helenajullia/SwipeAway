@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:swipe_away/authentication/login.dart';
-
 import '../home/search_page.dart';
 
 class SignUp extends StatefulWidget {
@@ -56,190 +55,128 @@ class _SignUpState extends State<SignUp> {
           'phone': phoneController.text,
         });
 
-        // Show success snackbar
         _showSnackBar(context, 'User successfully registered.');
-
-        // Navigate to HomePage
         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => SearchPage()));
-
       } else {
-        // Show error snackbar
         _showSnackBar(context, 'User registration failed.');
       }
     } catch (e) {
-      // Show error snackbar
       _showSnackBar(context, 'Error: $e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double formWidth = screenWidth > 500 ? 500 : screenWidth * 0.9; // Use 90% of screen width if screen is small
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 50), // Adjust this value to move controllers lower
-            Text(
-              'Personal details',
-              style: GoogleFonts.roboto(
-                color: Colors.black,
-                fontSize: MediaQuery.of(context).size.width * 0.1,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: firstNameController,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      labelText: 'First Name',
-                      labelStyle: TextStyle(color: Colors.black),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: TextField(
-                    controller: lastNameController,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      labelText: 'Last Name',
-                      labelStyle: TextStyle(color: Colors.black),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              cursorColor: Colors.black,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                labelStyle: TextStyle(color: Colors.black),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              cursorColor: Colors.black,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                labelStyle: TextStyle(color: Colors.black),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
-                ),
-              ),
-              obscureText: true,
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: phoneController,
-              cursorColor: Colors.black,
-              decoration: InputDecoration(
-                labelText: 'Phone',
-                labelStyle: TextStyle(color: Colors.black),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
-                ),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
-            SizedBox(height: 30),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  signUpAndSubmitData();
-                },
-                child: Text(
-                  'SIGN UP',
-                  style: GoogleFonts.roboto(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Already have an account?",
-                  style: TextStyle(
-                    color: Colors.black ,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
-                  },
-                  child: Text(
-                    "Sign In",
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            width: formWidth,
+            padding: EdgeInsets.all(24.0),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Create Account',
+                    style: GoogleFonts.lato(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 40),
+                  buildTextField(firstNameController, 'First Name'),
+                  SizedBox(height: 20),
+                  buildTextField(lastNameController, 'Last Name'),
+                  SizedBox(height: 20),
+                  buildTextField(emailController, 'Email'),
+                  SizedBox(height: 20),
+                  buildTextField(passwordController, 'Password', obscureText: true),
+                  SizedBox(height: 20),
+                  buildTextField(phoneController, 'Phone', keyboardType: TextInputType.phone),
+                  SizedBox(height: 40),
+                  ElevatedButton(
+                    onPressed: signUpAndSubmitData,
+                    style: ElevatedButton.styleFrom(
+                      primary: Theme.of(context).colorScheme.secondary,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      minimumSize: Size(double.infinity, 50), // double.infinity is the width and 50 is the height
+                    ),
+                    child: Text(
+                      'SIGN UP',
+                      style: GoogleFonts.lato(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
+                    },
+                    child: Text.rich(
+                      TextSpan(
+                        text: 'Already have an account? ',
+                        style: GoogleFonts.lato(fontSize: 16),
+                        children: [
+                          TextSpan(
+                            text: 'Sign In',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildTextField(TextEditingController controller, String label, {bool obscureText = false, TextInputType keyboardType = TextInputType.text}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.grey[200],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      ),
+      style: GoogleFonts.lato(fontSize: 18),
+      validator: (value) {
+        // Add your field validation here
+      },
     );
   }
 }

@@ -132,72 +132,75 @@ class _LoginPageState extends State<LoginPage> {
   }
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double formWidth = screenWidth > 500 ? 500 : screenWidth * 0.85; // Use 85% of screen width if screen is small
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: Center(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Login',
-                style: GoogleFonts.roboto(
-                  color: Colors.black,
-                  fontSize: MediaQuery.of(context).size.width * 0.1,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 30.0),
-              TextField(
-                controller: emailController,
-                cursorColor: Colors.black,
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.black, width: 1.5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
+        child: SingleChildScrollView(
+          child: Container(
+            width: formWidth,
+            padding: EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Login',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.roboto(
+                    color: Colors.black,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              SizedBox(height: 15.0),
-              TextField(
-                controller: passwordController,
-                cursorColor: Colors.black,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
+                SizedBox(height: 30.0),
+                TextField(
+                  controller: emailController,
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.black, width: 1.5),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.black, width: 1.5),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 30.0),
-              Center(
-                child: ElevatedButton(
+                SizedBox(height: 15.0),
+                TextField(
+                  controller: passwordController,
+                  cursorColor: Colors.black,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: 'Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.black, width: 1.5),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 30.0),
+                ElevatedButton(
                   onPressed: signIn,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                    primary: Colors.black,
+                    padding: EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
@@ -211,29 +214,21 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-              ),
-
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgotPassword()));
-                  },
-                  child: Text(
-                    'Forgot your password?',
-                    style: TextStyle(color: Colors.black),
+                Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => ForgotPassword())),
+                    child: Text(
+                      'Forgot your password?',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 15.0),
-
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    signInWithFacebook();
-                  },
+                SizedBox(height: 15.0),
+                ElevatedButton(
+                  onPressed: signInWithFacebook,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Facebook color
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    primary: Colors.blue, // Facebook color
+                    padding: EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
@@ -243,25 +238,22 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
-              ),
-              SizedBox(height: 15.0),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Don\'t have an account? '),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignUp()));
-                    },
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(color: Colors.black),
+                SizedBox(height: 15.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Don\'t have an account? '),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignUp())),
+                      child: Text(
+                        'Sign Up',
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

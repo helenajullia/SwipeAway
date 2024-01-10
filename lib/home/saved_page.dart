@@ -489,7 +489,7 @@ class _SavedPageState extends State<SavedPage> {
                         // Remove the dismissed item from the list model
                         hotels.removeAt(index);
                         // Then show a snackbar.
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${hotels[index].name} deleted")));
+                        //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${hotels[index].name} deleted")));
                         // Optionally, refresh the list to fetch the updated data
                         // You might need to adjust this if your state management is different
                         setState(() {});
