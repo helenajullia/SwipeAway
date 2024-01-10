@@ -4,61 +4,64 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChangePassword extends StatelessWidget {
-  // Create a TextEditingController for the password field
   final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double formWidth = screenWidth > 500 ? 500 : screenWidth * 0.85; // Use 85% of screen width if screen is small
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Change Password',
           style: GoogleFonts.roboto(
-            color: Colors.white, // Ensure the title text is white for contrast
+            color: Colors.white,
           ),
         ),
-        // This ensures no title on the AppBar
-        centerTitle: false,
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Text(
-              'Enter a new password:',
-              style: GoogleFonts.roboto(
-                color: Colors.black,
-                fontSize: MediaQuery.of(context).size.width * 0.08,
-                fontWeight: FontWeight.bold,
+      body: Center(
+      child: SingleChildScrollView(
+      child: Container(
+      width: formWidth,
+      padding: EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Text(
+            'Enter a new password:',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.roboto(
+              color: Colors.black,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 30),
+          TextField(
+            controller: passwordController,
+            cursorColor: Colors.black,
+            decoration: InputDecoration(
+              labelText: 'Reset password',
+              labelStyle: TextStyle(color: Colors.black),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.black, width: 1.5),
               ),
             ),
-            SizedBox(height: 30),
-            TextField(
-              controller: passwordController, // Use the TextEditingController
-              cursorColor: Colors.black,
-              decoration: InputDecoration(
-                labelText: 'Reset password',
-                labelStyle: TextStyle(color: Colors.black),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.black, width: 1.5),  // Change the color and width as you wish
-                ),
-              ),
-              keyboardType: TextInputType.emailAddress,
-              obscureText: true,
-            ),
+            obscureText: true,
+          ),
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: () async {
@@ -85,24 +88,25 @@ class ChangePassword extends StatelessWidget {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                primary: Colors.black,
+                padding: EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
-
                 ),
               ),
               child: Text(
                 'UPDATE',
                 style: GoogleFonts.roboto(
                   color: Colors.white,
-                  fontSize: MediaQuery.of(context).size.width * 0.05,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-          ],
-        ),
+        ],
+      ),
+      ),
+      ),
       ),
     );
   }
