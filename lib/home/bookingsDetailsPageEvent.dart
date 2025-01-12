@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:vibration/vibration.dart';
 
 import '../adminService/EventModel.dart';
 import 'myAccount/settings/bookingsPage.dart';
@@ -153,16 +154,31 @@ class _BookingDetailsPageStateEvent extends State<BookingDetailsPageEvent> {
               },
             ),
             ElevatedButton(
-              onPressed: _showTotalCostDialog,
+              onPressed: () {
+                triggerVibration();
+                _showTotalCostDialog(); // Alte funcții, dacă e cazul
+              },
               child: Text('Calculate Trip'),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.black,
               ),
-            ),// Add the rest of your UI components here
+            ),
+// Add the rest of your UI components here
           ],
         ),
       ),
     );
+  }
+  void triggerVibration() {
+    // Verifică dacă dispozitivul poate vibra
+    Vibration.hasVibrator().then((bool? hasVibrator) {
+      if (hasVibrator == true) {
+        Vibration.vibrate(duration: 500); // Vibrație timp de 500ms
+      } else {
+        print('Dispozitivul nu suportă vibrații.');
+      }
+    });
   }
 }
 

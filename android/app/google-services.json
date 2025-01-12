@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "477050565556",
+    "firebase_url": "https://swipeaway-7195c-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "swipeaway-7195c",
     "storage_bucket": "swipeaway-7195c.appspot.com"
   },
@@ -20,7 +21,15 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "477050565556-amuasu804m4nlq7vua24kj5udmlgl6k9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.helena.swipeAway2"
+              }
+            }
+          ]
         }
       }
     }

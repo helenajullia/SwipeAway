@@ -12,26 +12,32 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   get:
-  firebase_auth: ^4.12.0
-  cloud_firestore: ^4.12.1
+  firebase_auth: ^5.4.0
+  cloud_firestore: ^5.6.1
   crypto: ^3.0.3
-  firebase_database: ^10.3.2
-  firebase_core: ^2.20.0
-  flutter_login: ^4.2.1
+  firebase_database: ^11.3.0
+  firebase_core: ^3.10.0
+  flutter_login: ^5.0.0
   flutter_rating_bar: ^4.0.0
-  firebase_storage: ^11.5.0
+  firebase_storage: ^12.4.0
   image_picker: ^1.0.4
   flutter_swipe_action_cell: ^3.1.2
   flutter_slidable: ^3.0.1
-  intl: ^0.18.1
-  carousel_slider: ^4.2.1
+  intl: ^0.20.1
+  carousel_slider: ^5.0.0
   flutter_staggered_animations: ^1.1.1
-  flutter_facebook_auth: ^6.0.3
-  cached_network_image: ^3.3.1
+  flutter_facebook_auth: ^7.0.1
+  cached_network_image: ^3.2.3
+  vibration: ^2.0.1
+  js: ^0.6.5
+
+
 
 dependency_overrides:
   flutter_tindercard:
   card_swiper:
+  cached_network_image_web: ^1.0.1
+
 
 flutter:
   uses-material-design: true
@@ -42,5 +48,5 @@ flutter:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  google_fonts:
-  flutter_lints: ^3.0.0
+  google_fonts: ^6.2.1
+  flutter_lints: ^5.0.0

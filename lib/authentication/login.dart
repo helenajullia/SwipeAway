@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
       final User? user = userCredential.user;
       if (user != null) {
         // Check if the user is the admin
-        if (user.email == "adminswipeaway@yahoo.com") {
+        if (user.email == "adminswipeaway2@yahoo.com") {
           // Redirect to the Admin Interface
           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AdminInterface()));
           return; // Exit the function after handling admin user
@@ -199,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: signIn,
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.black,
+                    backgroundColor: Colors.black,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -227,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: signInWithFacebook,
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.blue, // Facebook color
+                    backgroundColor: Colors.blue, // Facebook color
                     padding: EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),

@@ -91,7 +91,7 @@ class _SavedPageState extends State<SavedPage> {
 
   void applyEventFilter() {
     setState(() {
-      filteredEvents = (eventSearchKeyword.isEmpty ?? true)
+      filteredEvents = eventSearchKeyword.isEmpty
           ? savedEvents
           : savedEvents.where((event) => event.name.contains(eventSearchKeyword)).toList();
     });

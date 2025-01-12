@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../adminService/HotelModel.dart';
@@ -77,6 +78,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           TextButton(
             child: Text('Book'),
             onPressed: () async {
+              // Activează vibrația folosind HapticFeedback
+              HapticFeedback.heavyImpact();
+
+              // Continuă cu logica de booking
               await _bookHotel();
               Navigator.of(context).pop(); // Close the dialog
               Navigator.of(context).push(

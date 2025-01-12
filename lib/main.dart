@@ -16,8 +16,13 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: firebaseOptions);
 
+  // Verifică dacă Firebase a fost deja inițializat
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   // Check if the app is running on Web
   if (kIsWeb) {
     // Initialize the Facebook JavaScript SDK
